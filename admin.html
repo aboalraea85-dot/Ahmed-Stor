@@ -6,28 +6,36 @@
     <title>لوحة إدارة المتجر - AhmedStor</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- مكتبة تصدير ملفات الإكسيل XLSX -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <style>
         body { font-family: 'Cairo', sans-serif; }
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen p-4">
 
     <div class="max-w-6xl mx-auto">
-        <!-- الهيدر -->
+        <!-- الهيدر الرئيسي -->
         <div class="bg-slate-900 text-white rounded-xl p-6 mb-6 shadow-md flex flex-wrap justify-between items-center gap-4">
             <h1 class="text-2xl font-extrabold flex items-center gap-2">
                 <i class="fa-solid fa-gear text-indigo-400"></i> لوحة إدارة المتجر - AhmedStor
             </h1>
-            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm">
-                <i class="fa-solid fa-box-archive"></i> تصدير الطلبات لإكسيل
+            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm shadow">
+                <i class="fa-solid fa-file-excel"></i> تصدير الطلبات المحدثة لإكسيل
             </button>
         </div>
 
-        <!-- أزرار التبويب (Tabs) -->
+        <!-- أزرار التبديل بين الأقسام (Tabs) -->
         <div class="flex border-b border-gray-300 mb-6 bg-white rounded-t-xl overflow-hidden shadow-sm">
             <button id="tab-orders-btn" onclick="switchTab('orders')" class="tab-btn px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2">
                 <i class="fa-solid fa-list-check"></i> الطلبات
@@ -40,9 +48,8 @@
             </button>
         </div>
 
-        <!-- 1. قسم الطلبات -->
+        <!-- 1. تبويب الطلبات -->
         <div id="tab-orders" class="tab-content">
-            <!-- الإحصائيات -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="bg-white p-5 rounded-xl shadow-sm border text-center">
                     <p class="text-gray-500 font-semibold text-sm mb-1">إجمالي عدد الطلبات</p>
@@ -54,12 +61,11 @@
                 </div>
             </div>
 
-            <!-- جدول الطلبات -->
             <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
-                    <h3 class="font-bold text-gray-700">قائمة الطلبات</h3>
-                    <button onclick="printSelectedInvoices()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
-                        <i class="fa-solid fa-print"></i> طباعة الفواتير المحمدة
+                <div class="p-4 bg-gray-50 border-b flex justify-between items-center flex-wrap gap-2">
+                    <h3 class="font-bold text-gray-700">قائمة الطلبات الحالية</h3>
+                    <button onclick="printSelectedInvoices()" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2 shadow">
+                        <i class="fa-solid fa-print"></i> طباعة الفواتير المحددة
                     </button>
                 </div>
                 <div class="overflow-x-auto">
@@ -78,7 +84,7 @@
                         </thead>
                         <tbody id="ordersTableBody">
                             <tr>
-                                <td colspan="8" class="text-center py-6 text-gray-500">جاري تحميل...</td>
+                                <td colspan="8" class="text-center py-6 text-gray-500">جاري تحميل البيانات...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -86,7 +92,7 @@
             </div>
         </div>
 
-        <!-- 2. قسم إدارة المنتجات -->
+        <!-- 2. تبويب إدارة المنتجات -->
         <div id="tab-products" class="tab-content hidden">
             <div class="bg-white p-6 rounded-xl shadow-sm border mb-6">
                 <h3 class="font-bold text-gray-800 mb-4">إضافة منتج جديد</h3>
@@ -94,17 +100,17 @@
                     <input type="text" id="prodTitle" placeholder="اسم المنتج" required class="border p-2 rounded-lg text-sm">
                     <input type="number" id="prodPrice" placeholder="السعر (ج.م)" required class="border p-2 rounded-lg text-sm">
                     <select id="prodCategory" required class="border p-2 rounded-lg text-sm bg-white">
-                        <!-- الأقسام تحمل من الفايربيس -->
+                        <!-- يتم التحميل تلقائياً من الفايربيس -->
                     </select>
                     <input type="url" id="prodImage" placeholder="رابط صورة المنتج" class="border p-2 rounded-lg text-sm">
                     <textarea id="prodDesc" placeholder="وصف المنتج" class="border p-2 rounded-lg text-sm md:col-span-2" rows="2"></textarea>
-                    <button type="submit" class="bg-indigo-600 text-white font-bold py-2 rounded-lg md:col-span-2 hover:bg-indigo-700 transition">حفظ المنتج</button>
+                    <button type="submit" class="bg-indigo-600 text-white font-bold py-2 rounded-lg md:col-span-2 hover:bg-indigo-700 transition">إضافة المنتج</button>
                 </form>
             </div>
             <div id="adminProductsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- 3. قسم إدارة الأقسام -->
+        <!-- 3. تبويب إدارة الأقسام -->
         <div id="tab-categories" class="tab-content hidden">
             <div class="bg-white p-6 rounded-xl shadow-sm border max-w-md">
                 <h3 class="font-bold text-gray-800 mb-4">إضافة قسم جديد</h3>
@@ -115,15 +121,17 @@
                 <ul id="adminCategoriesList" class="mt-4 divide-y"></ul>
             </div>
         </div>
-
     </div>
+
+    <!-- حاوية مخفية لخصائص الطباعة -->
+    <div id="printArea" class="hidden p-8 bg-white"></div>
 
     <!-- Firebase SDK (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // إعدادات Firebase
+        // إعدادات Firebase الخاص بمشروعك
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -137,24 +145,21 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- دالة التبديل بين التبويبات (مصلحة) ---
+        let rawOrdersData = {};
+
+        // --- دالة التنقل بين التبويبات ---
         function switchTab(tabName) {
-            // إخفاء كل التبويبات
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            
-            // إلغاء تفعيل كل أزرار التبويب
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('border-indigo-600', 'text-indigo-600', 'bg-indigo-50/50');
                 btn.classList.add('border-transparent', 'text-gray-600');
             });
 
-            // إظهار التبويب المحدد
             const selectedTab = document.getElementById(`tab-${tabName}`);
-            if(selectedTab) selectedTab.classList.remove('hidden');
+            if (selectedTab) selectedTab.classList.remove('hidden');
 
-            // تفعيل الزر المحدد
             const selectedBtn = document.getElementById(`tab-${tabName}-btn`);
-            if(selectedBtn) {
+            if (selectedBtn) {
                 selectedBtn.classList.remove('border-transparent', 'text-gray-600');
                 selectedBtn.classList.add('border-indigo-600', 'text-indigo-600', 'bg-indigo-50/50');
             }
@@ -167,14 +172,15 @@
             fetchProducts();
         });
 
-        // جلب الطلبات
+        // جلب الطلبات من الفايربيس
         function fetchOrders() {
             db.ref('orders').on('value', (snapshot) => {
                 const tbody = document.getElementById('ordersTableBody');
                 tbody.innerHTML = '';
+                rawOrdersData = snapshot.val() || {};
 
                 if (!snapshot.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-gray-500">لا توجد طلبات حتى الآن.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-gray-500">لا توجد طلبات مسجلة.</td></tr>';
                     document.getElementById('totalOrdersCount').innerText = '0';
                     document.getElementById('totalSalesAmount').innerText = '0 ج.م';
                     return;
@@ -194,11 +200,11 @@
 
                     tbody.innerHTML += `
                         <tr class="border-b hover:bg-gray-50">
-                            <td class="p-3"><input type="checkbox" class="order-select" value="${key}"></td>
+                            <td class="p-3"><input type="checkbox" class="order-checkbox" value="${key}"></td>
                             <td class="p-3 font-semibold">${order.customer?.name || '-'}</td>
                             <td class="p-3">${order.customer?.phone || '-'}</td>
                             <td class="p-3">${order.customer?.address || '-'}</td>
-                            <td class="p-3 text-xs text-gray-600 max-w-xs truncate">${itemsSummary}</td>
+                            <td class="p-3 text-xs text-gray-600 max-w-xs">${itemsSummary}</td>
                             <td class="p-3 font-bold text-indigo-600">${order.totalAmount || 0} ج.م</td>
                             <td class="p-3 text-xs text-gray-500">${dateStr}</td>
                             <td class="p-3">
@@ -213,14 +219,92 @@
             });
         }
 
-        // جلب وتحديث الأقسام والمنتجات
+        // تحديد كل المربعات
+        function toggleSelectAll(master) {
+            document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = master.checked);
+        }
+
+        // --- دالة تصدير الطلبات المحدثة لإكسيل ---
+        function exportToExcel() {
+            if (Object.keys(rawOrdersData).length === 0) {
+                alert('لا توجد بيانات طلبات لتصديرها!');
+                return;
+            }
+
+            const exportData = [];
+            Object.keys(rawOrdersData).forEach(key => {
+                const order = rawOrdersData[key];
+                const itemsStr = order.items ? order.items.map(i => `${i.title} [الكمية: ${i.qty}]`).join(' | ') : '';
+                
+                exportData.push({
+                    "رقم الطلب": key,
+                    "اسم العميل": order.customer?.name || '',
+                    "رقم الهاتف": order.customer?.phone || '',
+                    "العنوان": order.customer?.address || '',
+                    "المنتجات": itemsStr,
+                    "الإجمالي (ج.م)": order.totalAmount || 0,
+                    "التاريخ": order.createdAt ? new Date(order.createdAt).toLocaleString('ar-EG') : ''
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "الطلبات");
+
+            const dateNow = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(workbook, `AhmedStor_Orders_${dateNow}.xlsx`);
+        }
+
+        // --- دالة طباعة الفواتير المحددة ---
+        function printSelectedInvoices() {
+            const selectedBoxes = document.querySelectorAll('.order-checkbox:checked');
+            if (selectedBoxes.length === 0) {
+                alert('يرجى تحديد طلب واحد على الأقل للطباعة!');
+                return;
+            }
+
+            const printArea = document.getElementById('printArea');
+            printArea.innerHTML = '<h2 style="text-align:center; font-size:24px; font-weight:bold; margin-bottom:20px;">فواتير الشراء - AhmedStor</h2>';
+
+            selectedBoxes.forEach(box => {
+                const order = rawOrdersData[box.value];
+                if (!order) return;
+
+                let itemsHtml = '';
+                if(order.items) {
+                    order.items.forEach(i => {
+                        itemsHtml += `<li style="display:flex; justify-between; border-bottom:1px solid #eee; padding:4px 0;"><span>${i.title} × ${i.qty}</span> <span>${i.price * i.qty} ج.م</span></li>`;
+                    });
+                }
+
+                printArea.innerHTML += `
+                    <div style="border:2px solid #333; border-radius:8px; padding:15px; margin-bottom:20px; page-break-after: always;">
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #ccc; padding-bottom:8px; margin-bottom:10px;">
+                            <strong>طلب رقم: ${box.value.substring(0, 8)}</strong>
+                            <span>التاريخ: ${order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : ''}</span>
+                        </div>
+                        <p><strong>اسم العميل:</strong> ${order.customer?.name || '-'}</p>
+                        <p><strong>الهاتف:</strong> ${order.customer?.phone || '-'}</p>
+                        <p><strong>العنوان:</strong> ${order.customer?.address || '-'}</p>
+                        <h4 style="margin-top:10px; font-weight:bold;">المنتجات:</h4>
+                        <ul style="list-style:none; padding:0;">${itemsHtml}</ul>
+                        <p style="text-align:left; font-size:18px; font-weight:bold; margin-top:10px;">الإجمالي: ${order.totalAmount} ج.م</p>
+                    </div>
+                `;
+            });
+
+            printArea.classList.remove('hidden');
+            window.print();
+            printArea.classList.add('hidden');
+        }
+
+        // إدارة المنتجات والأقسام
         function fetchCategories() {
-            db.ref('categories').on('value', (snapshot) => {
+            db.ref('categories').on('value', snapshot => {
                 const select = document.getElementById('prodCategory');
                 const list = document.getElementById('adminCategoriesList');
                 select.innerHTML = '';
                 list.innerHTML = '';
-
                 if (snapshot.exists()) {
                     snapshot.forEach(child => {
                         const cat = child.val();
@@ -232,10 +316,10 @@
         }
 
         function fetchProducts() {
-            db.ref('products').on('value', (snapshot) => {
+            db.ref('products').on('value', snapshot => {
                 const grid = document.getElementById('adminProductsGrid');
                 grid.innerHTML = '';
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     snapshot.forEach(child => {
                         const p = child.val();
                         grid.innerHTML += `
@@ -269,7 +353,7 @@
         function handleAddCategory(e) {
             e.preventDefault();
             const catName = document.getElementById('catName').value.trim();
-            if(catName) db.ref('categories').push({ name: catName }).then(() => e.target.reset());
+            if (catName) db.ref('categories').push({ name: catName }).then(() => e.target.reset());
         }
 
         function deleteOrder(key) { if(confirm('هل أنت تأكد من حذف الطلب؟')) db.ref('orders/' + key).remove(); }
@@ -277,4 +361,5 @@
         function deleteCategory(key) { if(confirm('حذف القسم؟')) db.ref('categories/' + key).remove(); }
     </script>
 </body>
-</html>
+    </html>
+    
