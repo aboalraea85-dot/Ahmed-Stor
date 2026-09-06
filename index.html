@@ -3,13 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AhmedStor - المتجر الرسمي</title>
+  <title>لوحة التحكم - AhmedStor</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- مكتبة XLSX لتصدير ملفات الإكسيل -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --primary: #0f172a;
       --accent: #0284c7;
       --success: #10b981;
+      --danger: #ef4444;
       --bg: #f8fafc;
       --card-bg: #ffffff;
       --border: #e2e8f0;
@@ -18,357 +21,132 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 90px; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; }
 
-    header { 
-      background: var(--primary); 
-      color: white; 
-      padding: 12px 16px; 
-      text-align: center; 
-      position: sticky; 
-      top: 0; 
-      z-index: 100; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-    }
-    header h1 { font-size: 1.25rem; font-weight: 700; }
-
-    .categories-bar { 
-      display: flex; 
-      gap: 8px; 
-      padding: 10px 12px; 
-      overflow-x: auto; 
-      background: var(--card-bg); 
-      border-bottom: 1px solid var(--border);
-      scrollbar-width: none;
-    }
-    .categories-bar::-webkit-scrollbar { display: none; }
-    
-    .cat-btn { 
-      padding: 6px 14px; 
-      border: 1px solid var(--border); 
-      border-radius: 20px; 
-      background: var(--bg); 
-      color: var(--text-muted);
-      font-size: 0.8rem; 
-      font-weight: 500;
-      cursor: pointer; 
-      white-space: nowrap; 
-    }
-    .cat-btn.active { 
-      background: var(--accent); 
-      color: white; 
-      border-color: var(--accent); 
-      font-weight: 700; 
-    }
-
-    .products-grid { 
-      display: grid; 
-      grid-template-columns: repeat(2, 1fr); 
-      gap: 10px; 
-      padding: 10px; 
-      max-width: 900px; 
-      margin: auto; 
-    }
-
-    @media (min-width: 640px) {
-      .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 16px;
-        padding: 16px;
-      }
-    }
-
-    .product-card { 
-      background: var(--card-bg); 
-      border-radius: 12px; 
-      overflow: hidden; 
-      border: 1px solid var(--border); 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-between;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-
-    .img-container {
-      position: relative;
-      width: 100%;
-      padding-top: 100%;
-      background: #f1f5f9;
-    }
-    .product-img { 
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
-    }
-
-    .product-info { 
-      padding: 8px 10px 10px 10px; 
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
       display: flex;
-      flex-direction: column;
-      flex-grow: 1;
       justify-content: space-between;
-    }
-    .product-title { 
-      font-size: 0.85rem; 
-      font-weight: 500; 
-      line-height: 1.3;
-      margin-bottom: 4px;
-      color: var(--text);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      height: 2.3em;
-    }
-    .product-price { 
-      color: var(--accent); 
-      font-weight: 700; 
-      font-size: 0.95rem; 
-      margin-bottom: 8px; 
-    }
-
-    .card-qty-control {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 { font-size: 1.2rem; }
+
+    .btn {
+      padding: 8px 16px;
       border-radius: 8px;
-      padding: 3px;
-      margin-bottom: 6px;
-    }
-    .card-qty-btn {
-      width: 28px;
-      height: 28px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text);
-    }
-    .card-qty-btn:active { background: var(--border); }
-    .card-qty-num {
-      font-size: 0.85rem;
+      border: none;
       font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-success { background: var(--success); color: white; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-card h3 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .stat-card .val { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+
+    .table-container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 0.85rem;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    th {
+      background: #f1f5f9;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    tr:hover { background: #f8fafc; }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #e2e8f0;
       color: var(--text);
-    }
-
-    .add-btn { 
-      width: 100%; 
-      padding: 8px; 
-      background: var(--primary); 
-      color: white; 
-      border: none; 
-      border-radius: 8px; 
-      font-size: 0.8rem;
-      font-weight: 700; 
-      cursor: pointer; 
-    }
-    .add-btn:active { background: var(--accent); }
-
-    .cart-bar { 
-      position: fixed; 
-      bottom: 12px; 
-      left: 12px; 
-      right: 12px; 
-      max-width: 500px;
-      margin: auto;
-      background: var(--primary); 
-      color: white; 
-      padding: 10px 16px; 
-      border-radius: 30px;
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      cursor: pointer; 
-      z-index: 99; 
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
-    }
-    .cart-btn { 
-      background: var(--success); 
-      color: white; 
-      border: none; 
-      padding: 6px 14px; 
-      border-radius: 20px; 
-      font-weight: 700; 
-      font-size: 0.85rem;
-    }
-
-    .modal { 
-      display: none; 
-      position: fixed; 
-      top: 0; left: 0; right: 0; bottom: 0; 
-      background: rgba(15, 23, 42, 0.6); 
-      backdrop-filter: blur(3px);
-      z-index: 200; 
-      justify-content: center; 
-      align-items: flex-end; 
-    }
-    @media (min-width: 640px) {
-      .modal { align-items: center; padding: 16px; }
-    }
-
-    .modal-content { 
-      background: white; 
-      width: 100%; 
-      max-width: 480px; 
-      border-radius: 20px 20px 0 0; 
-      padding: 20px; 
-      max-height: 85vh; 
-      overflow-y: auto; 
-    }
-    @media (min-width: 640px) {
-      .modal-content { border-radius: 16px; }
-    }
-
-    .modal-title { 
-      font-size: 1.1rem; 
-      margin-bottom: 12px; 
-      color: var(--primary); 
-      border-bottom: 1px solid var(--border); 
-      padding-bottom: 8px; 
-    }
-
-    .cart-item { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 8px 0; 
-      border-bottom: 1px solid #f1f5f9; 
-      font-size: 0.85rem; 
-    }
-    .qty-controls { display: flex; gap: 6px; align-items: center; }
-    .qty-btn { 
-      width: 26px; 
-      height: 26px; 
-      border: 1px solid var(--border); 
-      background: var(--bg); 
-      border-radius: 6px; 
-      font-weight: bold; 
-      cursor: pointer; 
-    }
-
-    .summary-box { 
-      background: var(--bg); 
-      padding: 10px 12px; 
-      border-radius: 10px; 
-      margin: 12px 0; 
-      font-size: 0.85rem; 
-      border: 1px solid var(--border); 
-    }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .summary-row.total { 
-      font-weight: 700; 
-      font-size: 0.95rem; 
-      color: var(--accent); 
-      border-top: 1px solid var(--border); 
-      padding-top: 6px; 
-      margin-top: 4px;
-      margin-bottom: 0; 
-    }
-
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display: block; font-size: 0.8rem; margin-bottom: 4px; font-weight: 700; }
-    .form-group input, .form-group textarea { 
-      width: 100%; 
-      padding: 8px 10px; 
-      border: 1px solid var(--border); 
-      border-radius: 8px; 
-      outline: none; 
-      font-size: 0.85rem;
-    }
-
-    .submit-btn { 
-      width: 100%; 
-      padding: 10px; 
-      background: var(--success); 
-      color: white; 
-      border: none; 
-      border-radius: 8px; 
-      font-weight: 700; 
-      font-size: 0.95rem; 
-      cursor: pointer; 
-      margin-top: 8px; 
-    }
-    .close-btn { 
-      width: 100%; 
-      padding: 8px; 
-      background: var(--text-muted); 
-      color: white; 
-      border: none; 
-      border-radius: 8px; 
-      font-weight: 700; 
-      cursor: pointer; 
-      margin-top: 6px; 
-      font-size: 0.85rem;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>AhmedStor</h1>
+    <h1>📋 لوحة إدارة الطلبات - AhmedStor</h1>
+    <button class="btn btn-success" onclick="exportOrdersToExcel()">📥 تصدير كافه الطلبات لإكسيل</button>
   </header>
 
-  <div class="categories-bar" id="categoriesBar"></div>
-
-  <div class="products-grid" id="productsGrid">جاري تحضير المنتجات...</div>
-
-  <div class="cart-bar" onclick="openCartModal()">
-    <div>🛒 السلة (<span id="cartCount">0</span>)</div>
-    <button class="cart-btn">إتمام الطلب</button>
+  <div class="stats-cards">
+    <div class="stat-card">
+      <h3>إجمالي عدد الطلبات</h3>
+      <div class="val" id="totalOrdersCount">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>إجمالي المبيعات</h3>
+      <div class="val" id="totalSalesAmount">0 ج.م</div>
+    </div>
   </div>
 
-  <div class="modal" id="cartModal">
-    <div class="modal-content">
-      <h2 class="modal-title">تفاصيل الطلب 📦</h2>
-      
-      <div id="cartItemsList"></div>
-
-      <div class="summary-box">
-        <div class="summary-row">
-          <span>سعر المنتجات:</span>
-          <span id="subtotalText">0 ج.م</span>
-        </div>
-        <div class="summary-row">
-          <span>قيمة الشحن:</span>
-          <span id="shippingText">0 ج.م</span>
-        </div>
-        <div class="summary-row total">
-          <span>الإجمالي الكلي:</span>
-          <span id="grandTotalText">0 ج.م</span>
-        </div>
-      </div>
-
-      <form id="orderForm">
-        <div class="form-group">
-          <label>الاسم بالكامل</label>
-          <input type="text" id="custName" required placeholder="اسم المستلم">
-        </div>
-        <div class="form-group">
-          <label>رقم الهاتف</label>
-          <input type="tel" id="custPhone" required placeholder="010xxxxxxxx">
-        </div>
-        <div class="form-group">
-          <label>العنوان بالتفصيل</label>
-          <textarea id="custAddress" rows="2" required placeholder="المحافظة - المدينة - الشارع"></textarea>
-        </div>
-        <button type="submit" class="submit-btn" id="orderSubmitBtn">تأكيد الطلب 🚀</button>
-        <button type="button" class="close-btn" onclick="closeCartModal()">إغلاق</button>
-      </form>
-    </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>التاريخ</th>
+          <th>اسم العميل</th>
+          <th>الهاتف</th>
+          <th>العنوان</th>
+          <th>تفاصيل المنتجات</th>
+          <th>إجمالي المنتجات</th>
+          <th>الشحن</th>
+          <th>الإجمالي الكلي</th>
+          <th>الإجراءات</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTableBody">
+        <tr>
+          <td colspan="9" style="text-align:center; padding: 20px; color: var(--text-muted);">جاري تحميل الطلبات...</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
@@ -383,211 +161,114 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let products = {};
-    let categories = ["الكل"];
-    let cart = [];
-    let selectedCat = "الكل";
-    let shippingFee = 0;
-    let cardQuantities = {};
+    let ordersData = {};
 
-    // جلب الشحن
-    onValue(ref(db, 'settings/shippingFee'), (snapshot) => {
-      shippingFee = Number(snapshot.val()) || 0;
-      updateCartUI();
+    // الاستماع للطلبات لحظياً من قاعدة البيانات
+    onValue(ref(db, 'orders'), (snapshot) => {
+      ordersData = snapshot.val() || {};
+      renderOrders();
     });
 
-    // جلب الأقسام
-    onValue(ref(db, 'categories'), (snapshot) => {
-      if (snapshot.exists()) {
-        categories = snapshot.val();
-      }
-      renderCategories();
-    });
+    function renderOrders() {
+      const tbody = document.getElementById('ordersTableBody');
+      const keys = Object.keys(ordersData);
 
-    // جلب المنتجات
-    onValue(ref(db, 'products'), (snapshot) => {
-      products = snapshot.val() || {};
-      Object.keys(products).forEach(key => {
-        if (!cardQuantities[key]) cardQuantities[key] = 1;
-      });
-      renderProducts();
-    });
+      document.getElementById('totalOrdersCount').innerText = keys.length;
 
-    function renderCategories() {
-      const bar = document.getElementById('categoriesBar');
-      bar.innerHTML = '';
-      categories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = `cat-btn ${cat === selectedCat ? 'active' : ''}`;
-        btn.innerText = cat;
-        btn.onclick = () => {
-          selectedCat = cat;
-          renderCategories();
-          renderProducts();
-        };
-        bar.appendChild(btn);
-      });
-    }
-
-    function renderProducts() {
-      const grid = document.getElementById('productsGrid');
-      grid.innerHTML = '';
-
-      const keys = Object.keys(products);
-      const filteredKeys = keys.filter(k => selectedCat === 'الكل' || products[k].category === selectedCat);
-
-      if (filteredKeys.length === 0) {
-        grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; color:#64748b; padding:20px;">لا توجد منتجات متوفرة حالياً.</p>';
+      if (keys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 20px; color: var(--text-muted);">لا توجد أي طلبات حالياً.</td></tr>';
+        document.getElementById('totalSalesAmount').innerText = '0 ج.م';
         return;
       }
 
-      filteredKeys.forEach(key => {
-        const p = products[key];
-        const qty = cardQuantities[key] || 1;
-        grid.innerHTML += `
-          <div class="product-card">
-            <div class="img-container">
-              <img src="${p.image}" class="product-img">
-            </div>
-            <div class="product-info">
-              <div class="product-title">${p.title}</div>
-              <div class="product-price">${p.price} ج.م</div>
-              
-              <div class="card-qty-control">
-                <button type="button" class="card-qty-btn" onclick="adjustCardQty('${key}', -1)">-</button>
-                <span class="card-qty-num" id="qty-num-${key}">${qty}</span>
-                <button type="button" class="card-qty-btn" onclick="adjustCardQty('${key}', 1)">+</button>
-              </div>
+      let totalSales = 0;
+      tbody.innerHTML = '';
 
-              <button class="add-btn" onclick="addToCart('${key}')">إضافة للسلة 🛒</button>
-            </div>
-          </div>
+      // عرض أحدث الطلبات في الأعلى
+      keys.reverse().forEach(key => {
+        const order = ordersData[key];
+        const subtotal = Number(order.subtotal) || 0;
+        const shippingFee = Number(order.shippingFee) || 0;
+        const grandTotal = Number(order.total) || (subtotal + shippingFee);
+
+        totalSales += grandTotal;
+
+        const cartText = order.cart 
+          ? order.cart.map(i => `${i.title} (${i.qty})`).join('<br>') 
+          : 'لا توجد تفاصيل';
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${order.dateFormatted || order.dateStr || '-'}</td>
+            <td><strong>${order.name || '-'}</strong></td>
+            <td><a href="tel:${order.phone}" style="color:var(--accent); text-decoration:none;">${order.phone || '-'}</a></td>
+            <td>${order.address || '-'}</td>
+            <td>${cartText}</td>
+            <td>${subtotal} ج.م</td>
+            <td>${shippingFee} ج.م</td>
+            <td><strong>${grandTotal} ج.م</strong></td>
+            <td>
+              <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteOrder('${key}')">حذف 🗑️</button>
+            </td>
+          </tr>
         `;
       });
+
+      document.getElementById('totalSalesAmount').innerText = `${totalSales} ج.م`;
     }
 
-    window.adjustCardQty = function(key, delta) {
-      let current = cardQuantities[key] || 1;
-      current += delta;
-      if (current < 1) current = 1;
-      cardQuantities[key] = current;
-      const el = document.getElementById(`qty-num-${key}`);
-      if (el) el.innerText = current;
-    };
-
-    window.addToCart = function(key) {
-      const p = products[key];
-      const qtyToAdd = cardQuantities[key] || 1;
-      const existing = cart.find(item => item.id === key);
-
-      if (existing) {
-        existing.qty += qtyToAdd;
-      } else {
-        cart.push({ id: key, title: p.title, price: p.price, qty: qtyToAdd });
-      }
-      
-      cardQuantities[key] = 1;
-      const el = document.getElementById(`qty-num-${key}`);
-      if (el) el.innerText = 1;
-
-      updateCartUI();
-    };
-
-    function updateCartUI() {
-      const count = cart.reduce((acc, item) => acc + item.qty, 0);
-      document.getElementById('cartCount').innerText = count;
-
-      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-      const grandTotal = subtotal + shippingFee;
-
-      document.getElementById('subtotalText').innerText = `${subtotal} ج.م`;
-      document.getElementById('shippingText').innerText = shippingFee > 0 ? `${shippingFee} ج.م` : 'مجاني';
-      document.getElementById('grandTotalText').innerText = `${grandTotal} ج.م`;
-
-      const list = document.getElementById('cartItemsList');
-      if (cart.length === 0) {
-        list.innerHTML = '<p style="text-align:center; color:#64748b; padding:10px;">السلة فارغة.</p>';
+    // تصدير كل الطلبات المتاحة إلى ملف Excel
+    window.exportOrdersToExcel = function() {
+      const keys = Object.keys(ordersData);
+      if (keys.length === 0) {
+        alert("لا توجد طلبات لتصديرها حالياً!");
         return;
       }
 
-      list.innerHTML = '';
-      cart.forEach((item, index) => {
-        list.innerHTML += `
-          <div class="cart-item">
-            <div>
-              <strong>${item.title}</strong>
-              <br><small style="color:#0284c7;">${item.price} ج.م × ${item.qty}</small>
-            </div>
-            <div class="qty-controls">
-              <button type="button" class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
-              <span>${item.qty}</span>
-              <button type="button" class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
-            </div>
-          </div>
-        `;
+      const exportRows = [];
+
+      keys.forEach(key => {
+        const order = ordersData[key];
+        const subtotal = Number(order.subtotal) || 0;
+        const shippingFee = Number(order.shippingFee) || 0;
+        const grandTotal = Number(order.total) || (subtotal + shippingFee);
+
+        const itemsDetail = order.cart 
+          ? order.cart.map(item => `${item.title} (الكمية: ${item.qty})`).join(' | ')
+          : 'لا توجد تفاصيل';
+
+        exportRows.push({
+          "رقم الطلب": key,
+          "تاريخ الطلب": order.dateFormatted || order.dateStr || 'غير محدد',
+          "اسم العميل": order.name || '',
+          "رقم الهاتف": order.phone || '',
+          "العنوان": order.address || '',
+          "تفاصيل المنتجات": itemsDetail,
+          "إجمالي المنتجات (ج.م)": subtotal,
+          "مصاريف الشحن (ج.م)": shippingFee,
+          "الإجمالي الكلي (ج.م)": grandTotal
+        });
       });
-    }
 
-    window.changeQty = function(index, delta) {
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) {
-        cart.splice(index, 1);
-      }
-      updateCartUI();
+      const worksheet = XLSX.utils.json_to_sheet(exportRows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "الطلبات");
+
+      const fileName = `طلبات_المتجر_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
     };
 
-    window.openCartModal = function() {
-      if (cart.length === 0) {
-        alert('السلة فارغة! يرجى إضافة منتجات أولاً.');
-        return;
+    // حذف طلب من اللوحة والقاعدة
+    window.deleteOrder = async function(key) {
+      if (confirm('هل أنت تأكد من رغبتك في حذف هذا الطلب؟')) {
+        try {
+          await remove(ref(db, `orders/${key}`));
+          alert('تم حذف الطلب بنجاح.');
+        } catch (err) {
+          alert('حدث خطأ أثناء الحذف: ' + err.message);
+        }
       }
-      document.getElementById('cartModal').style.display = 'flex';
     };
-
-    window.closeCartModal = function() {
-      document.getElementById('cartModal').style.display = 'none';
-    };
-
-    // إرسال الطلب بعد التعديل وتأكيد إضافة الشحن للإجمالي الكلي
-    document.getElementById('orderForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const btn = document.getElementById('orderSubmitBtn');
-      btn.innerText = 'جاري الحفظ...';
-      btn.disabled = true;
-
-      const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-      const grandTotal = subtotal + shippingFee; // المجموع الكلي الدقيق
-      const todayISO = new Date().toISOString().split('T')[0];
-
-      const orderData = {
-        name: document.getElementById('custName').value.trim(),
-        phone: document.getElementById('custPhone').value.trim(),
-        address: document.getElementById('custAddress').value.trim(),
-        cart: cart,
-        subtotal: subtotal,
-        shippingFee: shippingFee,
-        total: grandTotal, // الإجمالي النهائي الشامل الشحن
-        dateStr: todayISO,
-        dateFormatted: new Date().toLocaleDateString('ar-EG'),
-        exported: false
-      };
-
-      try {
-        await push(ref(db, 'orders'), orderData);
-        alert('تم إرسال طلبك بنجاح!');
-        cart = [];
-        updateCartUI();
-        closeCartModal();
-        document.getElementById('orderForm').reset();
-      } catch (err) {
-        alert('حدث خطأ: ' + err.message);
-      } finally {
-        btn.innerText = 'تأكيد الطلب 🚀';
-        btn.disabled = false;
-      }
-    });
   </script>
 </body>
-  </html>
-  
+</html>
