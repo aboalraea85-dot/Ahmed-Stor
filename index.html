@@ -61,7 +61,6 @@
       font-weight: 700; 
     }
 
-    /* شبكة منتجين في الصف */
     .products-grid { 
       display: grid; 
       grid-template-columns: repeat(2, 1fr); 
@@ -130,7 +129,6 @@
       margin-bottom: 8px; 
     }
 
-    /* التحكم في الكمية بالزائد والناقص لكل منتج */
     .card-qty-control {
       display: flex;
       align-items: center;
@@ -175,7 +173,6 @@
     }
     .add-btn:active { background: var(--accent); }
 
-    /* شريط السلة السفلي */
     .cart-bar { 
       position: fixed; 
       bottom: 12px; 
@@ -204,7 +201,6 @@
       font-size: 0.85rem;
     }
 
-    /* النافذة المنبثقة */
     .modal { 
       display: none; 
       position: fixed; 
@@ -325,13 +321,11 @@
 
   <div class="products-grid" id="productsGrid">جاري تحضير المنتجات...</div>
 
-  <!-- شريط السلة العائم -->
   <div class="cart-bar" onclick="openCartModal()">
     <div>🛒 السلة (<span id="cartCount">0</span>)</div>
     <button class="cart-btn">إتمام الطلب</button>
   </div>
 
-  <!-- نافذة السلة والشراء -->
   <div class="modal" id="cartModal">
     <div class="modal-content">
       <h2 class="modal-title">تفاصيل الطلب 📦</h2>
@@ -456,7 +450,6 @@
               <div class="product-title">${p.title}</div>
               <div class="product-price">${p.price} ج.م</div>
               
-              <!-- تحكم الزائد والناقص للكمية -->
               <div class="card-qty-control">
                 <button type="button" class="card-qty-btn" onclick="adjustCardQty('${key}', -1)">-</button>
                 <span class="card-qty-num" id="qty-num-${key}">${qty}</span>
@@ -490,7 +483,6 @@
         cart.push({ id: key, title: p.title, price: p.price, qty: qtyToAdd });
       }
       
-      // إعادة تعيين كمية البطاقة إلى 1 بعد الإضافة
       cardQuantities[key] = 1;
       const el = document.getElementById(`qty-num-${key}`);
       if (el) el.innerText = 1;
