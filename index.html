@@ -3,99 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AhmedStor - المتجر الإلكتروني</title>
+    <title>AhmedStor - المتجر الرئيسي</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts (Cairo) -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body { font-family: 'Cairo', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between antialiased">
 
-    <!-- الهيدر / الشريط العلوي -->
-    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold tracking-wide">AhmedStor</h1>
-            
-            <!-- زر السلة -->
-            <button id="cartBtn" onclick="toggleCartModal()" class="relative bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
-                <i class="fa-solid font-bold fa-cart-shopping"></i>
-                <span>السلة</span>
-                <span id="cartCount" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
-            </button>
+    <!-- ==================== HEADER & NAVBAR ==================== -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-store text-xl"></i>
+                </div>
+                <div>
+                    <h1 id="storeBrandName" class="font-black text-xl tracking-wide text-slate-900">AhmedStor</h1>
+                    <p class="text-[11px] font-bold text-brand-600">تسوق أحدث المنتجات بأفضل الأسعار</p>
+                </div>
+            </div>
+
+            <!-- Search & Actions -->
+            <div class="flex items-center gap-3">
+                <!-- Cart Button -->
+                <button onclick="toggleCartModal(true)" class="relative bg-brand-50 hover:bg-brand-100 text-brand-600 p-3 rounded-2xl font-bold flex items-center gap-2 transition border border-brand-200">
+                    <i class="fa-solid fa-cart-shopping text-lg"></i>
+                    <span class="hidden sm:inline text-xs">سلة المشتريات</span>
+                    <span id="cartBadge" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">0</span>
+                </button>
+            </div>
         </div>
     </header>
 
-    <!-- الأقسام الرئيسية -->
-    <section class="container mx-auto px-4 py-6">
-        <h2 class="text-xl font-bold mb-4 border-r-4 border-indigo-600 pr-3">الأقسام</h2>
-        <div id="categoriesList" class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <button onclick="filterCategory('all')" class="category-btn active-cat bg-indigo-600 text-white px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition">الكل</button>
-            <!-- سيتم تحميل باقي الأقسام من Firebase -->
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="bg-gradient-to-r from-brand-900 via-brand-700 to-indigo-800 text-white py-16 px-4 mb-8">
+        <div class="max-w-7xl mx-auto text-center space-y-4">
+            <span class="bg-white/10 border border-white/20 text-white text-xs font-bold px-4 py-1.5 rounded-full inline-block">عروض حصرية لفترة محدودة 🔥</span>
+            <h2 class="text-3xl sm:text-5xl font-black tracking-tight">اكتشف أفضل المنتجات المتاحة الآن</h2>
+            <p class="text-slate-200 text-sm sm:text-base max-w-xl mx-auto">تصفح أقسام المتجر، اختر ما يناسبك، وأتمم طلبك بكل سهولة ويسر مع خدمة توصيل سريعة.</p>
         </div>
     </section>
 
-    <!-- عرض المنتجات -->
-    <main class="container mx-auto px-4 py-4 flex-grow">
-        <h2 class="text-xl font-bold mb-4 border-r-4 border-indigo-600 pr-3">المنتجات</h2>
-        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <!-- سيتم تحميل المنتجات هنا -->
-            <p class="col-span-full text-center text-gray-500 py-8">جاري تحميل المنتجات...</p>
+    <!-- ==================== MAIN CATALOG ==================== -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 w-full pb-16 space-y-8">
+        
+        <!-- Filter Categories Bar -->
+        <div id="categoriesFilterBar" class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
+            <button onclick="filterByCategory('ALL')" class="cat-btn bg-brand-600 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shrink-0 shadow-md shadow-brand-600/20 transition">الكل</button>
+            <!-- Dynamic Category Buttons -->
         </div>
+
+        <!-- Products Grid -->
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Dynamic Products Loading -->
+        </div>
+
     </main>
 
-    <!-- Modal سلة التسوق وإتمام الطلب -->
-    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <!-- رأس النافذة -->
-            <div class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
-                <h3 class="text-lg font-bold"><i class="fa-solid fa-cart-shopping ml-2"></i>سلة الشراء</h3>
-                <button onclick="toggleCartModal()" class="text-white hover:text-gray-200 text-xl font-bold">&times;</button>
-            </div>
-
-            <!-- قائمة عناصر السلة -->
-            <div id="cartItems" class="p-4 overflow-y-auto flex-grow divide-y">
-                <!-- المنتجات بالسلة -->
-            </div>
-
-            <!-- تفاصيل الطلب والحساب الإجمالي -->
-            <div class="p-4 bg-gray-50 border-t">
-                <div class="flex justify-between items-center mb-4 font-bold text-lg">
-                    <span>الإجمالي:</span>
-                    <span id="cartTotal" class="text-indigo-600">0 ج.م</span>
+    <!-- ==================== CART SLIDE OVER MODAL ==================== -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex justify-end transition-all">
+        <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between p-6 overflow-y-auto">
+            <div>
+                <!-- Header -->
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-bag-shopping text-brand-600"></i> سلة المشتريات
+                    </h3>
+                    <button onclick="toggleCartModal(false)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
 
-                <!-- نموذج بيانات العميل -->
-                <form id="orderForm" onsubmit="handleCheckout(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">الاسم بالكامل</label>
-                        <input type="text" id="custName" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="أدخل اسمك الكامل">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label>
-                        <input type="tel" id="custPhone" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="01xxxxxxxxx">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1">العنوان التفصيلي</label>
-                        <textarea id="custAddress" required rows="2" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="المحافظة، المدينة، الشارع..."></textarea>
-                    </div>
+                <!-- Cart Items Container -->
+                <div id="cartItemsContainer" class="divide-y divide-slate-100 my-4 space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
+                    <!-- Dynamic Cart Items -->
+                </div>
 
-                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition flex items-center justify-center gap-2 mt-2">
-                        <i class="fa-brands fa-whatsapp text-xl"></i>
-                        <span>تأكيد الطلب عبر واتساب</span>
-                    </button>
+                <!-- Coupon Section -->
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 my-4 space-y-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="couponInput" placeholder="أدخل كود الخصم (مثل SAVE20)" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs uppercase focus:outline-none focus:border-brand-500 font-bold">
+                        <button onclick="applyCoupon()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition">تطبيق</button>
+                    </div>
+                    <p id="couponMsg" class="text-[11px] font-bold text-emerald-600 hidden"></p>
+                </div>
+
+                <!-- Checkout Form Details -->
+                <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-3 pt-2 border-t border-slate-100">
+                    <h4 class="font-bold text-xs text-slate-500 uppercase">بيانات الشحن والتوصيل</h4>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">الاسم الكامل *</label>
+                        <input type="text" id="custName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">رقم الهاتف المحمول *</label>
+                        <input type="tel" id="custPhone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">العنوان بالتفصيل (المدينة، الشارع، رقم الحارة) *</label>
+                        <textarea id="custAddress" rows="2" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500"></textarea>
+                    </div>
                 </form>
+            </div>
+
+            <!-- Footer Summary & Checkout Button -->
+            <div class="border-t border-slate-100 pt-4 space-y-3">
+                <div class="space-y-1 text-xs font-bold text-slate-600">
+                    <div class="flex justify-between"><span>إجمالي المنتجات:</span> <span id="cartSubtotal">0 ج.م</span></div>
+                    <div class="flex justify-between"><span>مصاريف الشحن:</span> <span id="cartShippingFee">50 ج.م</span></div>
+                    <div id="discountRow" class="flex justify-between text-emerald-600 hidden"><span>الخصم المطبق:</span> <span id="cartDiscountVal">-0 ج.م</span></div>
+                    <div class="flex justify-between text-base font-black text-slate-900 border-t border-slate-200 pt-2"><span>الإجمالي الكلي:</span> <span id="cartGrandTotal" class="text-brand-600">0 ج.م</span></div>
+                </div>
+                <button type="button" onclick="document.getElementById('checkoutForm').requestSubmit()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-3 rounded-2xl text-xs transition shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-check text-sm"></i>
+                    <span>إتمام وتأكيد الطلب الآن</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- الفوتر -->
-    <footer class="bg-gray-800 text-white text-center py-4 mt-8 text-sm">
-        <p>جميع الحقوق محفوظة &copy; 2026 - AhmedStor</p>
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-xs">
+        <p>© 2026 <span id="footerStoreName" class="text-white font-bold">AhmedStor</span>. جميع الحقوق محفوظة.</p>
     </footer>
 
     <!-- Firebase SDK (v8) -->
@@ -103,7 +155,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // --- 1. إعدادات Firebase ---
+        // ==================== FIREBASE CONFIGURATION ====================
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -114,240 +166,205 @@
             appId: "YOUR_APP_ID"
         };
 
-        // تهيئة Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        let db = null;
+        let remoteData = {
+            products: {},
+            categories: {},
+            coupons: {},
+            settings: { storeName: "AhmedStor", defaultShipping: 50, freeShippingLimit: 1000 }
+        };
+
+        let cart = [];
+        let activeCategory = 'ALL';
+        let appliedDiscountPercent = 0;
+
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            }
+        } catch (e) {
+            console.warn("Firebase Init Error:", e);
         }
-        const db = firebase.database();
 
-        // --- 2. متغيرات الحالة العامة ---
-        let allProducts = [];
-        let cart = JSON.parse(localStorage.getItem('ahmedstor_cart')) || [];
-        let currentCategory = 'all';
-
-        // --- 3. تحميل البيانات عند البدء ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadCategories();
-            loadProducts();
-            updateCartUI();
+            if (db) {
+                db.ref().on('value', snapshot => {
+                    const val = snapshot.val() || {};
+                    remoteData.products = val.products || {};
+                    remoteData.categories = val.categories || {};
+                    remoteData.coupons = val.coupons || {};
+                    remoteData.settings = val.settings || remoteData.settings;
+                    updateUIFromData();
+                });
+            } else {
+                // Fallback to LocalStorage data simulation if Firebase is unlinked
+                const local = localStorage.getItem('ahmedstor_admin_data');
+                if (local) {
+                    try {
+                        const parsed = JSON.parse(local);
+                        remoteData.products = parsed.products || {};
+                        remoteData.categories = parsed.categories || {};
+                        remoteData.coupons = parsed.coupons || {};
+                        remoteData.settings = parsed.settings || remoteData.settings;
+                    } catch(e) {}
+                }
+                updateUIFromData();
+            }
         });
 
-        // تحميل الأقسام
-        function loadCategories() {
-            db.ref('categories').on('value', (snapshot) => {
-                const categoriesList = document.getElementById('categoriesList');
-                categoriesList.innerHTML = `<button onclick="filterCategory('all')" class="category-btn ${currentCategory === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'} px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition">الكل</button>`;
-                
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const cat = child.val();
-                        const isSelected = currentCategory === cat.name;
-                        categoriesList.innerHTML += `
-                            <button onclick="filterCategory('${cat.name}')" class="category-btn ${isSelected ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'} px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition">
-                                ${cat.name}
-                            </button>
-                        `;
-                    });
-                }
+        function updateUIFromData() {
+            const storeName = remoteData.settings.storeName || "AhmedStor";
+            document.getElementById('storeBrandName').innerText = storeName;
+            document.getElementById('footerStoreName').innerText = storeName;
+            document.title = storeName + " - المتجر الرئيسي";
+
+            renderCategoriesBar();
+            renderProductsGrid();
+        }
+
+        function renderCategoriesBar() {
+            const bar = document.getElementById('categoriesFilterBar');
+            bar.innerHTML = `<button onclick="filterByCategory('ALL')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${activeCategory === 'ALL' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">الكل</button>`;
+
+            Object.values(remoteData.categories || {}).forEach(c => {
+                const isActive = activeCategory === c.name;
+                bar.innerHTML += `<button onclick="filterByCategory('${c.name}')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${isActive ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">${c.name}</button>`;
             });
         }
 
-        // تحميل المنتجات
-        function loadProducts() {
-            db.ref('products').on('value', (snapshot) => {
-                allProducts = [];
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        allProducts.push({ id: child.key, ...child.val() });
-                    });
-                }
-                renderProducts();
-            });
+        function filterByCategory(catName) {
+            activeCategory = catName;
+            renderCategoriesBar();
+            renderProductsGrid();
         }
 
-        // تصفية المنتجات حسب القسم
-        function filterCategory(catName) {
-            currentCategory = catName;
-            loadCategories();
-            renderProducts();
-        }
-
-        // عرض المنتجات في الواجهة
-        function renderProducts() {
+        function renderProductsGrid() {
             const grid = document.getElementById('productsGrid');
             grid.innerHTML = '';
 
-            const filtered = currentCategory === 'all' 
-                ? allProducts 
-                : allProducts.filter(p => p.category === currentCategory);
+            const keys = Object.keys(remoteData.products || {});
+            const filteredKeys = keys.filter(k => {
+                const p = remoteData.products[k];
+                if (activeCategory === 'ALL') return true;
+                return p.category === activeCategory;
+            });
 
-            if (filtered.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">لا توجد منتجات متوفرة حالياً.</p>';
+            if (filteredKeys.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400 font-bold">لا توجد منتجات متاحة في هذا القسم حالياً.</div>`;
                 return;
             }
 
-            filtered.forEach(p => {
-                const cartItem = cart.find(item => item.id === p.id);
-                const qtyInCart = cartItem ? cartItem.qty : 0;
+            filteredKeys.forEach(key => {
+                const p = remoteData.products[key];
+                const img = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
 
                 grid.innerHTML += `
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 flex flex-col justify-between shadow-sm hover:shadow-xl transition-all group">
                         <div>
-                            <img src="${p.image || 'https://via.placeholder.com/300'}" alt="${p.title}" class="w-full h-40 object-cover">
-                            <div class="p-3">
-                                <h3 class="font-bold text-gray-800 text-sm mb-1 line-clamp-1">${p.title}</h3>
-                                <p class="text-xs text-gray-500 mb-2 line-clamp-2">${p.description || ''}</p>
-                                <span class="text-indigo-600 font-extrabold text-base">${p.price} ج.م</span>
+                            <div class="relative w-full h-48 rounded-2xl overflow-hidden bg-slate-100 mb-4">
+                                <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-brand-600 font-bold text-[10px] px-2.5 py-1 rounded-full shadow">${p.category || 'عام'}</span>
                             </div>
+                            <h3 class="font-bold text-sm text-slate-800 line-clamp-1 mb-1">${p.title}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mb-3">${p.description || 'لا يوجد وصف متاح.'}</p>
                         </div>
-                        <div class="p-3 pt-0">
-                            ${qtyInCart > 0 ? `
-                                <div class="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-lg p-1">
-                                    <button onclick="changeQty('${p.id}', -1)" class="w-8 h-8 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition">-</button>
-                                    <span class="font-bold text-indigo-900">${qtyInCart}</span>
-                                    <button onclick="changeQty('${p.id}', 1)" class="w-8 h-8 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition">+</button>
-                                </div>
-                            ` : `
-                                <button onclick="addToCart('${p.id}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1">
-                                    <i class="fa-solid fa-plus text-xs"></i> إضافة للسلة
-                                </button>
-                            `}
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block">السعر</span>
+                                <span class="font-black text-brand-600 text-base">${p.price} ج.م</span>
+                            </div>
+                            <button onclick="addToCart('${key}')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-brand-600/20 flex items-center gap-1.5">
+                                <i class="fa-solid fa-cart-plus"></i> أضف للسلة
+                            </button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // --- 4. إدارة سلة التسوق ---
-        function addToCart(productId) {
-            const product = allProducts.find(p => p.id === productId);
+        // ==================== CART MANAGEMENT ====================
+        function toggleCartModal(open) {
+            const modal = document.getElementById('cartModal');
+            if (open) {
+                modal.classList.remove('hidden');
+                renderCartModal();
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function addToCart(productKey) {
+            const product = remoteData.products[productKey];
             if (!product) return;
 
-            const existing = cart.find(item => item.id === productId);
+            const existing = cart.find(item => item.key === productKey);
             if (existing) {
-                existing.qty += 1;
+                existing.qty++;
             } else {
                 cart.push({
-                    id: product.id,
+                    key: productKey,
                     title: product.title,
                     price: Number(product.price),
-                    image: product.image,
-                    qty: 1
+                    shippingFee: Number(product.shippingFee || 0),
+                    qty: 1,
+                    image: (product.images && product.images.length > 0) ? product.images[0] : (product.image || '')
                 });
             }
-            saveCart();
+
+            updateCartBadge();
+            alert('تم إضافة المنتج إلى سلة المشتريات بنجاح!');
         }
 
-        function changeQty(productId, delta) {
-            const item = cart.find(i => i.id === productId);
-            if (!item) return;
+        function updateCartBadge() {
+            const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cartBadge').innerText = totalCount;
+        }
 
+        function changeQty(productKey, delta) {
+            const item = cart.find(i => i.key === productKey);
+            if (!item) return;
             item.qty += delta;
             if (item.qty <= 0) {
-                cart = cart.filter(i => i.id !== productId);
+                cart = cart.filter(i => i.key !== productKey);
             }
-            saveCart();
+            updateCartBadge();
+            renderCartModal();
         }
 
-        function saveCart() {
-            localStorage.setItem('ahmedstor_cart', JSON.stringify(cart));
-            updateCartUI();
-            renderProducts();
-        }
-
-        function updateCartUI() {
-            const cartCount = document.getElementById('cartCount');
-            const cartItems = document.getElementById('cartItems');
-            const cartTotal = document.getElementById('cartTotal');
-
-            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            cartCount.innerText = totalQty;
-            cartTotal.innerText = totalPrice.toLocaleString() + ' ج.م';
+        function renderCartModal() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
 
             if (cart.length === 0) {
-                cartItems.innerHTML = '<p class="text-center text-gray-500 py-6">السلة فارغة حالياً.</p>';
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">سلة المشتريات فارغة حالياً.</p>`;
+                document.getElementById('cartSubtotal').innerText = '0 ج.م';
+                document.getElementById('cartShippingFee').innerText = '0 ج.م';
+                document.getElementById('cartGrandTotal').innerText = '0 ج.م';
                 return;
             }
 
-            cartItems.innerHTML = '';
+            let subtotal = 0;
+            let maxShipping = 0;
+
             cart.forEach(item => {
-                cartItems.innerHTML += `
-                    <div class="py-3 flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-3">
-                            <img src="${item.image || 'https://via.placeholder.com/100'}" class="w-12 h-12 rounded object-cover">
-                            <div>
-                                <h4 class="font-bold text-sm text-gray-800">${item.title}</h4>
-                                <p class="text-xs text-indigo-600 font-semibold">${item.price} × ${item.qty} = ${item.price * item.qty} ج.م</p>
-                            </div>
+                subtotal += item.price * item.qty;
+                if (item.shippingFee > maxShipping) maxShipping = item.shippingFee;
+
+                container.innerHTML += `
+                    <div class="py-3 flex items-center justify-between gap-3">
+                        <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <h5 class="font-bold text-xs text-slate-800 truncate">${item.title}</h5>
+                            <p class="text-[11px] font-black text-brand-600">${item.price} ج.م</p>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-sm">-</button>
-                            <span class="font-bold text-sm">${item.qty}</span>
-                            <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-sm">+</button>
+                        <div class="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+                            <button type="button" onclick="changeQty('${item.key}', -1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-xs flex items-center justify-center">-</button>
+                            <span class="text-xs font-bold px-1">${item.qty}</span>
+                            <button type="button" onclick="changeQty('${item.key}', 1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-xs flex items-center justify-center">+</button>
                         </div>
                     </div>
                 `;
             });
-        }
 
-        function toggleCartModal() {
-            document.getElementById('cartModal').classList.toggle('hidden');
-        }
-
-        // --- 5. إتمام الطلب وتصديره إلى Firebase و WhatsApp ---
-        function handleCheckout(e) {
-            e.preventDefault();
-
-            if (cart.length === 0) {
-                alert('سلتك فارغة!');
-                return;
-            }
-
-            const name = document.getElementById('custName').value.trim();
-            const phone = document.getElementById('custPhone').value.trim();
-            const address = document.getElementById('custAddress').value.trim();
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-
-            const orderData = {
-                customer: { name, phone, address },
-                items: cart,
-                totalAmount: total,
-                status: "جديد",
-                createdAt: new Date().toISOString()
-            };
-
-            // حفظ الطلب في Firebase Realtime Database
-            const newOrderRef = db.ref('orders').push();
-            newOrderRef.set(orderData).then(() => {
-                // بناء رسالة الواتساب
-                let msg = `*طلب جديد من AhmedStor*%0A%0A`;
-                msg += `*الاسم:* ${name}%0A`;
-                msg += `*الهاتف:* ${phone}%0A`;
-                msg += `*العنوان:* ${address}%0A%0A`;
-                msg += `*تفاصيل الطلب:*%0A`;
-
-                cart.forEach((item, index) => {
-                    msg += `${index + 1}. ${item.title} (الكمية: ${item.qty}) - ${item.price * item.qty} ج.م%0A`;
-                });
-
-                msg += `%0A*الإجمالي:* ${total} ج.م`;
-
-                // تفريغ السلة واغلاق النافذة
-                cart = [];
-                saveCart();
-                toggleCartModal();
-                document.getElementById('orderForm').reset();
-
-                // توجيه المستخدم لواتساب (ضع رقم هاتفك بدلاً من 201000000000)
-                const whatsappPhone = "201000000000"; 
-                window.open(`https://wa.me/${whatsappPhone}?text=${msg}`, '_blank');
-            }).catch(err => {
-                alert('حدث خطأ أثناء حفظ الطلب: ' + err.message);
-            });
-        }
-    </script>
-</body>
-  </html>
-  
+            const defaultShipping = Number(remoteData.
