@@ -54,7 +54,7 @@
     <!-- 2. إرسال الطلبات إكسيل -->
     <div class="card">
       <h2>إدارة الطلبات والتقارير 📊</h2>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">تصدير الطلبات الجديدة فقط (التي لم تُصدر من قبل) في ملف إكسيل منظم للطباعة وإرساله عبر الواتساب.</p>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">تصدير الطلبات الجديدة فقط في ملف إكسيل منظم للطباعة وإرساله عبر الواتساب.</p>
       <button class="btn btn-green" onclick="exportExcelInvoice()">إرسال الفواتير الجديدة إكسيل للواتساب 📊</button>
     </div>
 
@@ -122,7 +122,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const WHATSAPP_NUM = "201501008175";
+    const WHATSAPP_NUM = "201501008175"; // رقم الواتساب المخصص للإرسال
 
     let categories = ["الكل", "منتجات حريمي", "منتجات رجالي", "أخرى"];
     let products = {};
@@ -221,7 +221,7 @@
       });
     }
 
-    // تحويل الصورة المحملة من الهاتف إلى Base64
+    // تحويل الصورة المحملة إلى Base64
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -272,17 +272,19 @@
       }
     };
 
-    // 4. تصدير الفواتير الجديدة فقط مع التنسيق المحترف
+    // 4. تصدير الفواتير الجديدة فقط مع إظهار الشحن والتنسيق الصحيح
     window.exportExcelInvoice = async function() {
       const todayISO = new Date().toISOString().split('T')[0];
       const snapshot = await get(ref(db, 'orders'));
       const orders = snapshot.val() || {};
 
-      // تصفية الطلبات الجديدة فقط (التي لم تُصدّر من قبل)
-      const newOrderKeys = Object.keys(orders).filter(key => !orders[key].exported);
+      // تصفية الطلبات الجديدة التي لم تُصدر من قبل
+      const newOrderKeys = Object.keys(orders).filter(key => {
+        return !orders[key].exported;
+      });
 
       if (newOrderKeys.length === 0) {
-        alert('لا توجد طلبات جديدة لتصديرها! جميع الطلبات السابقة تم تصديرها بالفعل.');
+        alert('لا توجد طلبات جديدة لتصديرها! جميع الطلبات المسجلة تم تصديرها من قبل.');
         return;
       }
 
@@ -291,9 +293,9 @@
         views: [{ rtl: true }]
       });
 
-      // تحديد عرض الأعمدة الأربعة لضمان محاذاة صحيحة للطباعة
+      // أبعاد الأعمدة الأربعة لضمان محاذاة الفاتورة والطباعة
       worksheet.columns = [
-        { width: 28 }, // A: اسم المنتج / المسمى
+        { width: 28 }, // A: المسمى / اسم المنتج
         { width: 14 }, // B: السعر الفردي / القيمة
         { width: 10 }, // C: الكمية
         { width: 16 }  // D: الإجمالي الفرعي / النهائي
@@ -306,14 +308,7 @@
         right: { style: 'thin', color: { argb: 'CBD5E1' } }
       };
 
-      const doubleBottomBorder = {
-        top: { style: 'thin', color: { argb: 'CBD5E1' } },
-        left: { style: 'thin', color: { argb: 'CBD5E1' } },
-        bottom: { style: 'double', color: { argb: '0F172A' } },
-        right: { style: 'thin', color: { argb: 'CBD5E1' } }
-      };
-
-      const updates = {}; // لتحديث حالة الطلبات إلى exported: true
+      const updates = {}; // لتحديث حالة الطلبات بعد التصدير
 
       newOrderKeys.forEach((key, index) => {
         const o = orders[key];
@@ -321,21 +316,21 @@
 
         const startRow = worksheet.rowCount + 1;
 
-        // 1. عنوان الفاتورة بكتلة مدمجة
+        // 1. ترويسة الفاتورة
         const headerRow = worksheet.addRow([`AhmedStor - فاتورة رقم (${index + 1})`, '', '', '']);
         worksheet.mergeCells(`A${headerRow.number}:D${headerRow.number}`);
         headerRow.getCell(1).font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
         headerRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0F172A' } };
         headerRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-        // 2. بيانات العميل مرتبة ومحاذاة بشكل دقيق
-        const rName = worksheet.addRow(['اسم العميل:', o.name, '', '']);
+        // 2. بيانات العميل
+        const rName = worksheet.addRow(['اسم العميل:', o.name || '', '', '']);
         worksheet.mergeCells(`B${rName.number}:D${rName.number}`);
 
-        const rPhone = worksheet.addRow(['رقم الهاتف:', o.phone, '', '']);
+        const rPhone = worksheet.addRow(['رقم الهاتف:', o.phone || '', '', '']);
         worksheet.mergeCells(`B${rPhone.number}:D${rPhone.number}`);
 
-        const rAddress = worksheet.addRow(['العنوان:', o.address, '', '']);
+        const rAddress = worksheet.addRow(['العنوان:', o.address || '', '', '']);
         worksheet.mergeCells(`B${rAddress.number}:D${rAddress.number}`);
 
         [rName, rPhone, rAddress].forEach(row => {
@@ -352,7 +347,8 @@
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
 
-        o.cart.forEach(item => {
+        const cartItems = o.cart || [];
+        cartItems.forEach(item => {
           const itemRow = worksheet.addRow([item.title, `${item.price} ج.م`, item.qty, `${item.price * item.qty} ج.م`]);
           itemRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
           itemRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
@@ -360,14 +356,18 @@
           itemRow.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
         });
 
-        // 4. الحسابات المالية المفصولة
-        const subtotalRow = worksheet.addRow(['السعر:', '', '', `${o.total} ج.م`]);
+        // 4. الحسابات المالية (مبلغ المنتجات + قيمة الشحن + الإجمالي شامل الشحن)
+        const subtotal = o.total || 0;
+        const shipping = Number(o.shippingFee) || 0;
+        const grandTotal = subtotal + shipping;
+
+        const subtotalRow = worksheet.addRow(['السعر:', '', '', `${subtotal} ج.م`]);
         worksheet.mergeCells(`A${subtotalRow.number}:C${subtotalRow.number}`);
 
-        const shippingRow = worksheet.addRow(['الشحن:', '', '', `${o.shippingFee || 0} ج.م`]);
+        const shippingRow = worksheet.addRow(['الشحن:', '', '', shipping > 0 ? `${shipping} ج.م` : 'مجاني']);
         worksheet.mergeCells(`A${shippingRow.number}:C${shippingRow.number}`);
 
-        const grandTotalRow = worksheet.addRow(['الإجمالي شامل الشحن:', '', '', `${(o.total + (o.shippingFee || 0))} ج.م`]);
+        const grandTotalRow = worksheet.addRow(['الإجمالي شامل الشحن:', '', '', `${grandTotal} ج.م`]);
         worksheet.mergeCells(`A${grandTotalRow.number}:C${grandTotalRow.number}`);
 
         [subtotalRow, shippingRow].forEach(row => {
@@ -384,10 +384,10 @@
 
         const endRow = grandTotalRow.number;
 
-        // تطبيق الحدود والإطار الخارجي لكل فاتورة
+        // تطبيق الحدود والشبكة حول كل فاتورة
         for (let r = startRow; r <= endRow; r++) {
           for (let c = 1; c <= 4; c++) {
-            worksheet.getCell(r, c).border = (r === endRow) ? doubleBottomBorder : thinBorder;
+            worksheet.getCell(r, c).border = thinBorder;
           }
         }
 
@@ -395,10 +395,10 @@
         worksheet.addRow([]);
       });
 
-      // حفظ وضع التصدير في قاعدة البيانات لمنع تكرار نزولها مجدداً
+      // حفظ تحديث الطلبات في الفايربيس (تعليم الطلبات كـ exported)
       await update(ref(db), updates);
 
-      // تنزيل الملف ومشاركته
+      // تنزيل ملف الإكسيل
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
@@ -408,9 +408,11 @@
       a.click();
       window.URL.revokeObjectURL(url);
 
-      const msg = `*فواتير جديدة (AhmedStor)* 📄\n\n- عدد الفواتير الجديدة: ${newOrderKeys.length}\n- تم تصدير الملف بنجاح وتحديث قاعدة البيانات لمنع تكرار الطلبات.`;
+      // توجيه للواتساب مع الرسالة والرقم المطلوب
+      const msg = `*فواتير جديدة (AhmedStor)* 📄\n\n- عدد الفواتير الجديدة: ${newOrderKeys.length}\n- تم تصدير الملف بنجاح وتحديث قاعدة البيانات.`;
       window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
     };
   </script>
 </body>
-</html>
+  </html>
+  
