@@ -37,13 +37,13 @@
 
         <!-- أزرار التبديل بين الأقسام (Tabs) -->
         <div class="flex border-b border-gray-300 mb-6 bg-white rounded-t-xl overflow-hidden shadow-sm">
-            <button id="tab-orders-btn" onclick="switchTab('orders')" class="tab-btn px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2">
+            <button id="btn-tab-orders" onclick="switchTab('orders')" class="px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2">
                 <i class="fa-solid fa-list-check"></i> الطلبات
             </button>
-            <button id="tab-products-btn" onclick="switchTab('products')" class="tab-btn px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2">
+            <button id="btn-tab-products" onclick="switchTab('products')" class="px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2">
                 <i class="fa-solid fa-box"></i> إدارة المنتجات
             </button>
-            <button id="tab-categories-btn" onclick="switchTab('categories')" class="tab-btn px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2">
+            <button id="btn-tab-categories" onclick="switchTab('categories')" class="px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2">
                 <i class="fa-solid fa-folder"></i> إدارة الأقسام
             </button>
         </div>
@@ -102,13 +102,22 @@
                     <input type="number" id="prodPrice" placeholder="السعر (ج.م)" required class="border p-2 rounded-lg text-sm">
                     <input type="number" id="prodShipping" placeholder="مصاريف الشحن (ج.م)" value="0" class="border p-2 rounded-lg text-sm">
                     <select id="prodCategory" required class="border p-2 rounded-lg text-sm bg-white">
-                        <!-- يتم التحميل تلقائياً من الفايربيس -->
+                        <!-- يتم التحميل من الفايربيس -->
                     </select>
                     
-                    <!-- رفع الصورة من الجهاز (كمبيوتر/تليفون) -->
-                    <div class="md:col-span-2 border p-3 rounded-lg bg-gray-50">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">اختر صورة المنتج من الجهاز:</label>
-                        <input type="file" id="prodImageFile" accept="image/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    <!-- خيار الصورة (ملف أو رابط) -->
+                    <div class="md:col-span-2 border p-3 rounded-lg bg-gray-50 space-y-2">
+                        <div class="flex items-center gap-4 text-xs font-bold text-gray-700">
+                            <span>مصدر الصورة:</span>
+                            <label class="cursor-pointer flex items-center gap-1">
+                                <input type="radio" name="imageSource" value="file" checked onclick="toggleImageInput('file')"> رفع من الجهاز
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-1">
+                                <input type="radio" name="imageSource" value="url" onclick="toggleImageInput('url')"> رابط صورة (URL)
+                            </label>
+                        </div>
+                        <input type="file" id="prodImageFile" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                        <input type="url" id="prodImageUrl" placeholder="ضع رابط الصورة هنا (https://...)" class="w-full border p-2 rounded-lg text-sm hidden">
                     </div>
 
                     <textarea id="prodDesc" placeholder="وصف المنتج" class="border p-2 rounded-lg text-sm md:col-span-2" rows="2"></textarea>
@@ -131,7 +140,7 @@
         </div>
     </div>
 
-    <!-- حاوية مخفية لخصائص الطباعة -->
+    <!-- منطقة خفية للطباعة -->
     <div id="printArea" class="hidden p-8 bg-white"></div>
 
     <!-- Firebase SDK (v8) -->
@@ -139,7 +148,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // إعدادات Firebase الخاص بمشروعك
+        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -154,33 +163,54 @@
         const db = firebase.database();
 
         let rawOrdersData = {};
+        let activeImageMode = 'file';
 
-        // --- دالة التنقل بين التبويبات ---
+        // --- دالة التبديل المضبوطة بين التبويبات ---
         function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-indigo-600', 'text-indigo-600', 'bg-indigo-50/50');
-                btn.classList.add('border-transparent', 'text-gray-600');
+            // 1. إخفاء كافة المحتويات
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+
+            // 2. إلغاء تفعيل كافة الأزرار
+            const btns = ['orders', 'products', 'categories'];
+            btns.forEach(b => {
+                const btnEl = document.getElementById(`btn-tab-${b}`);
+                if (btnEl) {
+                    btnEl.className = "px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2";
+                }
             });
 
-            const selectedTab = document.getElementById(`tab-${tabName}`);
-            if (selectedTab) selectedTab.classList.remove('hidden');
+            // 3. إظهار التبويب المطلوب وتفعيل زره
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            const targetBtn = document.getElementById(`btn-tab-${tabName}`);
 
-            const selectedBtn = document.getElementById(`tab-${tabName}-btn`);
-            if (selectedBtn) {
-                selectedBtn.classList.remove('border-transparent', 'text-gray-600');
-                selectedBtn.classList.add('border-indigo-600', 'text-indigo-600', 'bg-indigo-50/50');
+            if (targetTab) targetTab.classList.remove('hidden');
+            if (targetBtn) {
+                targetBtn.className = "px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2";
             }
         }
 
-        // --- تحميل البيانات ---
+        function toggleImageInput(mode) {
+            activeImageMode = mode;
+            const fileInput = document.getElementById('prodImageFile');
+            const urlInput = document.getElementById('prodImageUrl');
+            if (mode === 'file') {
+                fileInput.classList.remove('hidden');
+                urlInput.classList.add('hidden');
+            } else {
+                fileInput.classList.add('hidden');
+                urlInput.classList.remove('hidden');
+            }
+        }
+
+        // --- تحميل البيانات عند فتح الصفحة ---
         document.addEventListener('DOMContentLoaded', () => {
             fetchOrders();
             fetchCategories();
             fetchProducts();
         });
 
-        // جلب الطلبات من الفايربيس
+        // جلب الطلبات
         function fetchOrders() {
             db.ref('orders').on('value', (snapshot) => {
                 const tbody = document.getElementById('ordersTableBody');
@@ -231,12 +261,11 @@
             });
         }
 
-        // تحديد كل المربعات
         function toggleSelectAll(master) {
             document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = master.checked);
         }
 
-        // --- دالة تصدير الطلبات المحدثة لإكسيل ---
+        // تصدير الإكسيل
         function exportToExcel() {
             if (Object.keys(rawOrdersData).length === 0) {
                 alert('لا توجد بيانات طلبات لتصديرها!');
@@ -271,7 +300,7 @@
             XLSX.writeFile(workbook, `AhmedStor_Orders_${dateNow}.xlsx`);
         }
 
-        // --- دالة طباعة الفواتير المحددة ---
+        // طباعة الفواتير
         function printSelectedInvoices() {
             const selectedBoxes = document.querySelectorAll('.order-checkbox:checked');
             if (selectedBoxes.length === 0) {
@@ -295,7 +324,6 @@
 
                 const shipping = Number(order.shippingFee || 0);
                 const subtotal = Number(order.totalAmount || 0);
-                const grandTotal = subtotal + shipping;
 
                 printArea.innerHTML += `
                     <div style="border:2px solid #333; border-radius:8px; padding:15px; margin-bottom:20px; page-break-after: always;">
@@ -311,7 +339,7 @@
                         <hr style="margin:10px 0;">
                         <p style="display:flex; justify-content:space-between; margin:2px 0;"><span>إجمالي المنتجات:</span> <span>${subtotal} ج.م</span></p>
                         <p style="display:flex; justify-content:space-between; margin:2px 0;"><span>مصاريف الشحن:</span> <span>${shipping} ج.م</span></p>
-                        <p style="text-align:left; font-size:18px; font-weight:bold; margin-top:10px; border-top:2px dashed #333; padding-top:5px;">الإجمالي الكلي: ${grandTotal} ج.م</p>
+                        <p style="text-align:left; font-size:18px; font-weight:bold; margin-top:10px; border-top:2px dashed #333; padding-top:5px;">الإجمالي الكلي: ${subtotal + shipping} ج.م</p>
                     </div>
                 `;
             });
@@ -321,55 +349,21 @@
             printArea.classList.add('hidden');
         }
 
-        // --- إضافة المنتج ومعالجة رفع الصورة ---
+        // إضافة المنتج
         function handleAddProduct(e) {
             e.preventDefault();
-            
-            const fileInput = document.getElementById('prodImageFile');
             const submitBtn = document.getElementById('submitProdBtn');
 
-            if (fileInput.files.length === 0) {
-                alert('يرجى اختيار صورة للمنتج!');
-                return;
-            }
+            const title = document.getElementById('prodTitle').value;
+            const price = Number(document.getElementById('prodPrice').value);
+            const shippingFee = Number(document.getElementById('prodShipping').value || 0);
+            const category = document.getElementById('prodCategory').value;
+            const description = document.getElementById('prodDesc').value;
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            submitBtn.disabled = true;
-            submitBtn.innerText = "جاري رفع الصورة والإضافة...";
-
-            reader.onload = function(event) {
-                const imageBase64 = event.target.result;
-
+            const saveToDb = (imageUrl) => {
                 db.ref('products').push({
-                    title: document.getElementById('prodTitle').value,
-                    price: Number(document.getElementById('prodPrice').value),
-                    shippingFee: Number(document.getElementById('prodShipping').value || 0),
-                    category: document.getElementById('prodCategory').value,
-                    image: imageBase64, // حفظ الصورة كـ Base64
-                    description: document.getElementById('prodDesc').value
+                    title, price, shippingFee, category, description,
+                    image: imageUrl
                 }).then(() => {
                     e.target.reset();
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "إضافة المنتج";
-                    alert('تمت إضافة المنتج بنجاح!');
-                }).catch(err => {
-                    alert('حدث خطأ أثناء الإضافة: ' + err.message);
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "إضافة المنتج";
-                });
-            };
-
-            reader.readAsDataURL(file); // تحويل صورة الهاتف/الكومبيوتر لـ Data URL
-        }
-
-        // إدارة المنتجات والأقسام
-        function fetchCategories() {
-            db.ref('categories').on('value', snapshot => {
-                const select = document.getElementById('prodCategory');
-                const list = document.getElementById('adminCategoriesList');
-                select.innerHTML = '';
-                list.innerHTML = '';
-                if (snapshot.exists()) {
-                    sn
+             
