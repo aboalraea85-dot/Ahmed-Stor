@@ -88,14 +88,14 @@
           <input type="number" id="pPrice" required>
         </div>
         <div class="form-group">
-          <label>رابط الصورة</label>
-          <input type="url" id="pImage" placeholder="https://..." required>
+          <label>صورة المنتج (تحميل من الهاتف 📱)</label>
+          <input type="file" id="pImageFile" accept="image/*" required>
         </div>
         <div class="form-group">
           <label>الوصف (اختياري)</label>
           <textarea id="pDesc" rows="2"></textarea>
         </div>
-        <button type="submit" class="btn">حفظ المنتج</button>
+        <button type="submit" class="btn" id="submitBtn">حفظ المنتج</button>
       </form>
     </div>
 
@@ -221,20 +221,49 @@
       });
     }
 
-    document.getElementById('addProductForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const newProduct = {
-        title: document.getElementById('pTitle').value,
-        category: document.getElementById('pCategory').value,
-        price: Number(document.getElementById('pPrice').value),
-        image: document.getElementById('pImage').value,
-        description: document.getElementById('pDesc').value
-      };
-
-      push(ref(db, 'products'), newProduct).then(() => {
-        alert('تمت إضافة المنتج بنجاح!');
-        document.getElementById('addProductForm').reset();
+    // دالة تحويل ملف الصورة المحمل من الهاتف إلى Base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
       });
+    }
+
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fileInput = document.getElementById('pImageFile');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('يرجى اختيار صورة للمنتج من الهاتف!');
+        return;
+      }
+
+      const btn = document.getElementById('submitBtn');
+      btn.innerText = 'جاري حفظ ورسوم الصورة...';
+      btn.disabled = true;
+
+      try {
+        const imageBase64 = await convertFileToBase64(fileInput.files[0]);
+
+        const newProduct = {
+          title: document.getElementById('pTitle').value,
+          category: document.getElementById('pCategory').value,
+          price: Number(document.getElementById('pPrice').value),
+          image: imageBase64,
+          description: document.getElementById('pDesc').value
+        };
+
+        await push(ref(db, 'products'), newProduct);
+        alert('تمت إضافة المنتج بالصورة بنجاح!');
+        document.getElementById('addProductForm').reset();
+      } catch (err) {
+        alert('حدث خطأ أثناء تحميل الصورة: ' + err.message);
+      } finally {
+        btn.innerText = 'حفظ المنتج';
+        btn.disabled = false;
+      }
     });
 
     window.deleteProduct = function(key) {
@@ -257,10 +286,9 @@
       }
 
       const rows = [];
-      // ترويسة الفاتورة المنسقة
       rows.push(["اسم المتجر:", "AhmedStor", "", "", "", ""]);
       rows.push(["تقرير فواتير يوم:", todayISO, "", "", "", ""]);
-      rows.push([]); // سطر فارغ
+      rows.push([]);
 
       todayOrders.forEach((o, index) => {
         rows.push([`--- فاتورة رقم (${index + 1}) ---`]);
@@ -276,7 +304,7 @@
         rows.push(["مبلغ المنتجات:", `${o.total} ج.م`]);
         rows.push(["قيمة الشحن:", `${o.shippingFee || 0} ج.م`]);
         rows.push(["الإجمالي الكلي النهائي:", `${(o.total + (o.shippingFee || 0))} ج.م`]);
-        rows.push([]); // سطر فاصل بين الفواتير
+        rows.push([]);
       });
 
       const worksheet = XLSX.utils.aoa_to_sheet(rows);
