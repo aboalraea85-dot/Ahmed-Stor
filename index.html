@@ -49,7 +49,6 @@
       gap: 6px;
     }
     .btn-success { background: var(--success); color: white; }
-    .btn-primary { background: var(--accent); color: white; }
     .btn-danger { background: var(--danger); color: white; }
 
     .stats-cards {
@@ -92,22 +91,13 @@
       font-weight: 700;
     }
     tr:hover { background: #f8fafc; }
-
-    .badge {
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      background: #e2e8f0;
-      color: var(--text);
-    }
   </style>
 </head>
 <body>
 
   <header>
     <h1>📋 لوحة إدارة الطلبات - AhmedStor</h1>
-    <button class="btn btn-success" onclick="exportOrdersToExcel()">📥 تصدير كافه الطلبات لإكسيل</button>
+    <button class="btn btn-success" id="exportBtn" onclick="exportOrdersToExcel()">📥 تصدير الطلبات المحدثة لإكسيل</button>
   </header>
 
   <div class="stats-cards">
@@ -146,7 +136,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
@@ -161,17 +151,17 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let ordersData = {};
+    let currentOrders = {};
 
-    // الاستماع للطلبات لحظياً من قاعدة البيانات
+    // التحديث اللحظي للجدول في الصفحة
     onValue(ref(db, 'orders'), (snapshot) => {
-      ordersData = snapshot.val() || {};
-      renderOrders();
+      currentOrders = snapshot.val() || {};
+      renderOrders(currentOrders);
     });
 
-    function renderOrders() {
+    function renderOrders(data) {
       const tbody = document.getElementById('ordersTableBody');
-      const keys = Object.keys(ordersData);
+      const keys = Object.keys(data);
 
       document.getElementById('totalOrdersCount').innerText = keys.length;
 
@@ -184,9 +174,9 @@
       let totalSales = 0;
       tbody.innerHTML = '';
 
-      // عرض أحدث الطلبات في الأعلى
+      // العرض من الأحدث للأقدم
       keys.reverse().forEach(key => {
-        const order = ordersData[key];
+        const order = data[key];
         const subtotal = Number(order.subtotal) || 0;
         const shippingFee = Number(order.shippingFee) || 0;
         const grandTotal = Number(order.total) || (subtotal + shippingFee);
@@ -217,45 +207,65 @@
       document.getElementById('totalSalesAmount').innerText = `${totalSales} ج.م`;
     }
 
-    // تصدير كل الطلبات المتاحة إلى ملف Excel
-    window.exportOrdersToExcel = function() {
-      const keys = Object.keys(ordersData);
-      if (keys.length === 0) {
-        alert("لا توجد طلبات لتصديرها حالياً!");
-        return;
-      }
+    // تصدير الإكسيل عبر جلب مباشر ومحدث لحظياً من الفايربيس عند الضغط
+    window.exportOrdersToExcel = async function() {
+      const btn = document.getElementById('exportBtn');
+      btn.innerText = 'جاري التصدير...';
+      btn.disabled = true;
 
-      const exportRows = [];
+      try {
+        // جلب أحدث لقطة بيانات مباشرة من قاعدة البيانات
+        const snapshot = await get(ref(db, 'orders'));
+        const latestData = snapshot.val() || {};
+        const keys = Object.keys(latestData);
 
-      keys.forEach(key => {
-        const order = ordersData[key];
-        const subtotal = Number(order.subtotal) || 0;
-        const shippingFee = Number(order.shippingFee) || 0;
-        const grandTotal = Number(order.total) || (subtotal + shippingFee);
+        if (keys.length === 0) {
+          alert("لا توجد طلبات لتصديرها حالياً!");
+          return;
+        }
 
-        const itemsDetail = order.cart 
-          ? order.cart.map(item => `${item.title} (الكمية: ${item.qty})`).join(' | ')
-          : 'لا توجد تفاصيل';
+        const exportRows = [];
 
-        exportRows.push({
-          "رقم الطلب": key,
-          "تاريخ الطلب": order.dateFormatted || order.dateStr || 'غير محدد',
-          "اسم العميل": order.name || '',
-          "رقم الهاتف": order.phone || '',
-          "العنوان": order.address || '',
-          "تفاصيل المنتجات": itemsDetail,
-          "إجمالي المنتجات (ج.م)": subtotal,
-          "مصاريف الشحن (ج.م)": shippingFee,
-          "الإجمالي الكلي (ج.م)": grandTotal
+        // ترتيب الطلبات من الأحدث للأقدم
+        keys.reverse().forEach(key => {
+          const order = latestData[key];
+          const subtotal = Number(order.subtotal) || 0;
+          const shippingFee = Number(order.shippingFee) || 0;
+          const grandTotal = Number(order.total) || (subtotal + shippingFee);
+
+          const itemsDetail = order.cart 
+            ? order.cart.map(item => `${item.title} (الكمية: ${item.qty})`).join(' | ')
+            : 'لا توجد تفاصيل';
+
+          exportRows.push({
+            "رقم الطلب (ID)": key,
+            "تاريخ الطلب": order.dateFormatted || order.dateStr || 'غير محدد',
+            "اسم العميل": order.name || '',
+            "رقم الهاتف": order.phone || '',
+            "العنوان": order.address || '',
+            "تفاصيل المنتجات": itemsDetail,
+            "إجمالي المنتجات": subtotal,
+            "الشحن": shippingFee,
+            "الإجمالي الكلي": grandTotal
+          });
         });
-      });
 
-      const worksheet = XLSX.utils.json_to_sheet(exportRows);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "الطلبات");
+        const worksheet = XLSX.utils.json_to_sheet(exportRows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "الطلبات");
 
-      const fileName = `طلبات_المتجر_${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
+        // إضافة وقت بالثواني لاسم الملف لضمان تحميل ملف جديد تماماً وعدم استبدال قديم
+        const now = new Date();
+        const timestamp = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+        const fileName = `طلبات_المتجر_${timestamp}.xlsx`;
+
+        XLSX.writeFile(workbook, fileName);
+      } catch (err) {
+        alert('حدث خطأ أثناء تصدير الملف: ' + err.message);
+      } finally {
+        btn.innerText = '📥 تصدير الطلبات المحدثة لإكسيل';
+        btn.disabled = false;
+      }
     };
 
     // حذف طلب من اللوحة والقاعدة
@@ -271,4 +281,5 @@
     };
   </script>
 </body>
-</html>
+  </html>
+  
