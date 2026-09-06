@@ -3,112 +3,315 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم - AhmedStor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-  <!-- مكتبة ExcelJS لتنسيق الإكسيل والإطارات للطباعة -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+  <title>لوحة التحكم الشاملة - AhmedStor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- مكتبة XLSX لتصدير ملفات الإكسيل -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background: #f1f5f9; color: #0f172a; padding: 20px 10px 60px 10px; }
-    .container { max-width: 900px; margin: auto; }
-    header { background: #0f172a; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
-    
-    .card { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #cbd5e1; }
-    .card h2 { font-size: 1.2rem; color: #0284c7; margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
-    
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; margin-bottom: 5px; font-size: 0.9rem; font-weight: bold; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
-    
-    .btn { padding: 10px 18px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; background: #0284c7; width: 100%; font-size: 0.95rem; }
-    .btn-green { background: #10b981; }
-    .btn-danger { background: #ef4444; width: auto; padding: 4px 10px; font-size: 0.8rem; }
-    
-    .flex-row { display: flex; gap: 10px; }
-    .flex-row input { flex: 1; }
+    :root {
+      --primary: #0f172a;
+      --accent: #0284c7;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+    }
 
-    /* قائمة المنتجات والأقسام */
-    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #e2e8f0; }
-    .list-item:last-child { border-bottom: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 50px; }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--border);
+    }
+    .tab-btn {
+      padding: 10px 18px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border-radius: 10px 10px 0 0;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-success { background: var(--success); color: white; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .stat-card h3 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    .stat-card .val { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
+    .form-group input, .form-group select {
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.85rem;
+    }
+
+    .table-container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+      font-size: 0.85rem;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    th {
+      background: #f1f5f9;
+      color: var(--primary);
+      font-weight: 700;
+    }
+    tr:hover { background: #f8fafc; }
+
+    .prod-img-td {
+      width: 45px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <h1>لوحة تحكم AhmedStor</h1>
-    </header>
+  <header>
+    <h1>⚙️ لوحة إدارة المتجر - AhmedStor</h1>
+    <button class="btn btn-success" id="exportBtn" onclick="exportOrdersToExcel()">📥 تصدير الطلبات المحدثة لإكسيل</button>
+  </header>
 
-    <!-- 1. إعدادات الشحن -->
-    <div class="card">
-      <h2>إعدادات الشحن 🚚</h2>
-      <div class="form-group">
-        <label>قيمة الشحن (اكتب 0 للشحن المجاني)</label>
-        <div class="flex-row">
-          <input type="number" id="shippingFeeInput" placeholder="مثال: 50">
-          <button class="btn" style="width: 120px;" onclick="saveShippingFee()">حفظ الشحن</button>
-        </div>
+  <!-- التبويبات الرئيسيـة -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('ordersTab', this)">📋 إدارة الطلبات</button>
+    <button class="tab-btn" onclick="switchTab('productsTab', this)">📦 إدارة المنتجات</button>
+    <button class="tab-btn" onclick="switchTab('categoriesTab', this)">📁 إدارة الأقسام</button>
+    <button class="tab-btn" onclick="switchTab('settingsTab', this)">🚚 مصاريف الشحن</button>
+  </div>
+
+  <!-- 1️⃣ تبويب الطلبات -->
+  <div id="ordersTab" class="tab-content active">
+    <div class="stats-cards">
+      <div class="stat-card">
+        <h3>إجمالي عدد الطلبات</h3>
+        <div class="val" id="totalOrdersCount">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>إجمالي المبيعات</h3>
+        <div class="val" id="totalSalesAmount">0 ج.م</div>
       </div>
     </div>
 
-    <!-- 2. إرسال الطلبات إكسيل -->
-    <div class="card">
-      <h2>إدارة الطلبات والتقارير 📊</h2>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">تصدير الطلبات الجديدة فقط في ملف إكسيل منظم للطباعة وإرساله عبر الواتساب.</p>
-      <button class="btn btn-green" onclick="exportExcelInvoice()">إرسال الفواتير الجديدة إكسيل للواتساب 📊</button>
+    <!-- شريط الإجراءات الجماعية -->
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="printSelectedInvoices()">🖨️ طباعة الفواتير المحددة</button>
     </div>
 
-    <!-- 3. إضافة وتعديل الأقسام -->
-    <div class="card">
-      <h2>إدارة الأقسام 🏷️</h2>
-      <div class="form-group">
-        <label>إضافة قسم جديد</label>
-        <div class="flex-row">
-          <input type="text" id="newCatInput" placeholder="اسم القسم الجديد">
-          <button class="btn" style="width: 120px;" onclick="addCategory()">إضافة</button>
-        </div>
-      </div>
-      <div id="categoriesList" style="margin-top: 15px;"></div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
+            <th>التاريخ</th>
+            <th>اسم العميل</th>
+            <th>الهاتف</th>
+            <th>العنوان</th>
+            <th>تفاصيل المنتجات</th>
+            <th>إجمالي المنتجات</th>
+            <th>الشحن</th>
+            <th>الإجمالي الكلي</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+          <tr>
+            <td colspan="10" style="text-align:center; padding: 20px; color: var(--text-muted);">جاري تحميل الطلبات...</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- 4. إضافة منتج جديد -->
+  <!-- 2️⃣ تبويب المنتجات -->
+  <div id="productsTab" class="tab-content">
     <div class="card">
-      <h2>إضافة منتج جديد 📦</h2>
-      <form id="addProductForm">
-        <div class="form-group">
-          <label>اسم المنتج</label>
-          <input type="text" id="pTitle" required>
+      <div class="card-title" id="productFormTitle">إضافة منتج جديد ➕</div>
+      <form id="productForm">
+        <input type="hidden" id="editProductId">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>اسم المنتج</label>
+            <input type="text" id="pTitle" required placeholder="مثال: تيشرت قطن">
+          </div>
+          <div class="form-group">
+            <label>السعر (ج.م)</label>
+            <input type="number" id="pPrice" required placeholder="150">
+          </div>
+          <div class="form-group">
+            <label>القسم</label>
+            <select id="pCategory" required></select>
+          </div>
+          <div class="form-group">
+            <label>رابط الصورة (URL)</label>
+            <input type="url" id="pImage" required placeholder="https://...">
+          </div>
         </div>
-        <div class="form-group">
-          <label>القسم</label>
-          <select id="pCategory" required></select>
+        <div style="display:flex; gap:10px;">
+          <button type="submit" class="btn btn-primary" id="saveProductBtn">حفظ المنتج 💾</button>
+          <button type="button" class="btn btn-danger" id="cancelEditBtn" style="display:none;" onclick="resetProductForm()">إلغاء التعديل</button>
         </div>
-        <div class="form-group">
-          <label>السعر (ج.م)</label>
-          <input type="number" id="pPrice" required>
-        </div>
-        <div class="form-group">
-          <label>صورة المنتج (تحميل من الهاتف 📱)</label>
-          <input type="file" id="pImageFile" accept="image/*" required>
-        </div>
-        <div class="form-group">
-          <label>الوصف (اختياري)</label>
-          <textarea id="pDesc" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn" id="submitBtn">حفظ المنتج</button>
       </form>
     </div>
 
-    <!-- 5. قائمة المنتجات الحالية -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>الصورة</th>
+            <th>اسم المنتج</th>
+            <th>السعر</th>
+            <th>القسم</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="productsTableBody">
+          <tr>
+            <td colspan="5" style="text-align:center; padding: 20px; color: var(--text-muted);">جاري تحميل المنتجات...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3️⃣ تبويب الأقسام -->
+  <div id="categoriesTab" class="tab-content">
     <div class="card">
-      <h2>المنتجات الحالية 📋</h2>
-      <div id="productsList">جاري التحميل...</div>
+      <div class="card-title">إضافة قسم جديد 📁</div>
+      <form id="categoryForm" style="display:flex; gap:10px; max-width: 500px;">
+        <input type="text" id="catNameInput" class="form-group" style="flex:1; padding:8px;" placeholder="اسم القسم الجديد..." required>
+        <button type="submit" class="btn btn-primary">إضافة القسم</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="card-title">الأقسام الحالية</div>
+      <ul id="categoriesList" style="list-style: none; display: flex; flex-wrap: wrap; gap: 8px;"></ul>
+    </div>
+  </div>
+
+  <!-- 4️⃣ تبويب الإعدادات والمصاريف -->
+  <div id="settingsTab" class="tab-content">
+    <div class="card" style="max-width: 400px;">
+      <div class="card-title">إعدادات مصاريف الشحن 🚚</div>
+      <form id="shippingForm">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>قيمة الشحن (ج.م)</label>
+          <input type="number" id="shippingFeeInput" required placeholder="50">
+        </div>
+        <button type="submit" class="btn btn-success">حفظ الشحن</button>
+      </form>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, set, push, remove, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, set, push, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
@@ -122,297 +325,259 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const WHATSAPP_NUM = "201501008175"; // رقم الواتساب المخصص للإرسال
 
-    let categories = ["الكل", "منتجات حريمي", "منتجات رجالي", "أخرى"];
-    let products = {};
+    let currentOrders = {};
+    let currentProducts = {};
+    let currentCategories = ["الكل"];
 
-    // 1. تحميل إعدادات الشحن
-    onValue(ref(db, 'settings/shippingFee'), (snapshot) => {
-      if (snapshot.exists()) {
-        document.getElementById('shippingFeeInput').value = snapshot.val();
-      } else {
-        document.getElementById('shippingFeeInput').value = 0;
-      }
-    });
-
-    window.saveShippingFee = function() {
-      const fee = Number(document.getElementById('shippingFeeInput').value) || 0;
-      set(ref(db, 'settings/shippingFee'), fee).then(() => {
-        alert('تم حفظ قيمة الشحن بنجاح!');
-      });
+    // التنقل بين التبويبات
+    window.switchTab = function(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
     };
 
-    // 2. تحميل وإدارة الأقسام
-    onValue(ref(db, 'categories'), (snapshot) => {
-      if (snapshot.exists()) {
-        categories = snapshot.val();
-      } else {
-        set(ref(db, 'categories'), categories);
-      }
-      renderCategories();
+    // --- 1️⃣ إدارة الطلبات ---
+    onValue(ref(db, 'orders'), (snapshot) => {
+      currentOrders = snapshot.val() || {};
+      renderOrders(currentOrders);
     });
 
-    function renderCategories() {
-      const select = document.getElementById('pCategory');
-      const list = document.getElementById('categoriesList');
-      select.innerHTML = '';
-      list.innerHTML = '';
+    function renderOrders(data) {
+      const tbody = document.getElementById('ordersTableBody');
+      const keys = Object.keys(data);
+      document.getElementById('totalOrdersCount').innerText = keys.length;
 
-      categories.forEach((cat, index) => {
-        if (cat !== 'الكل') {
-          select.innerHTML += `<option value="${cat}">${cat}</option>`;
-          list.innerHTML += `
-            <div class="list-item">
-              <span>${cat}</span>
-              <button class="btn btn-danger" onclick="deleteCategory(${index})">حذف</button>
-            </div>
-          `;
-        }
-      });
-    }
-
-    window.addCategory = function() {
-      const val = document.getElementById('newCatInput').value.trim();
-      if (val && !categories.includes(val)) {
-        categories.push(val);
-        set(ref(db, 'categories'), categories);
-        document.getElementById('newCatInput').value = '';
-      }
-    };
-
-    window.deleteCategory = function(index) {
-      if (confirm('هل أنت تأكد من حذف هذا القسم؟')) {
-        categories.splice(index, 1);
-        set(ref(db, 'categories'), categories);
-      }
-    };
-
-    // 3. تحميل وإدارة المنتجات
-    onValue(ref(db, 'products'), (snapshot) => {
-      products = snapshot.val() || {};
-      renderProducts();
-    });
-
-    function renderProducts() {
-      const list = document.getElementById('productsList');
-      list.innerHTML = '';
-
-      const keys = Object.keys(products);
       if (keys.length === 0) {
-        list.innerHTML = '<p style="color:#64748b;">لا توجد منتجات حالياً.</p>';
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px;">لا توجد أي طلبات.</td></tr>';
+        document.getElementById('totalSalesAmount').innerText = '0 ج.م';
         return;
       }
 
-      keys.forEach(key => {
-        const p = products[key];
-        list.innerHTML += `
-          <div class="list-item">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${p.image}" width="40" height="40" style="object-fit:cover; border-radius:4px;">
-              <div>
-                <strong>${p.title}</strong> - <span style="color:#0284c7;">${p.price} ج.م</span>
-                <br><small style="color:#64748b;">القسم: ${p.category}</small>
-              </div>
-            </div>
-            <button class="btn btn-danger" onclick="deleteProduct('${key}')">حذف</button>
-          </div>
+      let totalSales = 0;
+      tbody.innerHTML = '';
+
+      keys.reverse().forEach(key => {
+        const order = data[key];
+        const subtotal = Number(order.subtotal) || 0;
+        const shippingFee = Number(order.shippingFee) || 0;
+        const grandTotal = Number(order.total) || (subtotal + shippingFee);
+
+        totalSales += grandTotal;
+
+        const cartText = order.cart 
+          ? order.cart.map(i => `${i.title} (${i.qty})`).join('<br>') 
+          : 'لا توجد تفاصيل';
+
+        tbody.innerHTML += `
+          <tr>
+            <td><input type="checkbox" class="order-select-checkbox" value="${key}"></td>
+            <td>${order.dateFormatted || order.dateStr || '-'}</td>
+            <td><strong>${order.name || '-'}</strong></td>
+            <td><a href="tel:${order.phone}" style="color:var(--accent); text-decoration:none;">${order.phone || '-'}</a></td>
+            <td>${order.address || '-'}</td>
+            <td>${cartText}</td>
+            <td>${subtotal} ج.م</td>
+            <td>${shippingFee} ج.م</td>
+            <td><strong>${grandTotal} ج.م</strong></td>
+            <td style="display:flex; gap:4px;">
+              <button class="btn btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="printSingleInvoice('${key}')">طباعة 🖨️</button>
+              <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteOrder('${key}')">حذف 🗑️</button>
+            </td>
+          </tr>
         `;
       });
+
+      document.getElementById('totalSalesAmount').innerText = `${totalSales} ج.م`;
     }
 
-    // تحويل الصورة المحملة إلى Base64
-    function convertFileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-      });
+    // تحديد / إلغاء تحديد كافة الطلبات
+    window.toggleSelectAll = function(source) {
+      const checkboxes = document.querySelectorAll('.order-select-checkbox');
+      checkboxes.forEach(cb => cb.checked = source.checked);
+    };
+
+    // دوال بناء كود HTML للطباعة
+    function generateInvoiceHTML(key, order) {
+      const subtotal = Number(order.subtotal) || 0;
+      const shippingFee = Number(order.shippingFee) || 0;
+      const grandTotal = Number(order.total) || (subtotal + shippingFee);
+
+      let itemsRows = '';
+      if (order.cart && order.cart.length > 0) {
+        order.cart.forEach((item, index) => {
+          const itemPrice = Number(item.price) || 0;
+          const itemQty = Number(item.qty) || 1;
+          itemsRows += `
+            <tr>
+              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${index + 1}</td>
+              <td style="border: 1px solid #ccc; padding: 6px;">${item.title}</td>
+              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${itemQty}</td>
+              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${itemPrice} ج.م</td>
+              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${itemPrice * itemQty} ج.م</td>
+            </tr>
+          `;
+        });
+      }
+
+      return `
+        <div class="invoice-page">
+          <div class="header">
+            <h2>فاتورة مبيعات - AhmedStor</h2>
+            <p>رقم الطلب: #${key}</p>
+          </div>
+          <div class="info-grid">
+            <div class="info-box">
+              <p><strong>اسم العميل:</strong> ${order.name || '-'}</p>
+              <p><strong>رقم الهاتف:</strong> ${order.phone || '-'}</p>
+              <p><strong>العنوان:</strong> ${order.address || '-'}</p>
+            </div>
+            <div class="info-box" style="text-align: left;">
+              <p><strong>تاريخ الطلب:</strong> ${order.dateFormatted || order.dateStr || '-'}</p>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>اسم المنتج</th>
+                <th>الكمية</th>
+                <th>سعر القطعة</th>
+                <th>الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsRows}
+            </tbody>
+          </table>
+          <div class="total-box">
+            <p><strong>مجموع المنتجات:</strong> ${subtotal} ج.م</p>
+            <p><strong>مصاريف الشحن:</strong> ${shippingFee} ج.م</p>
+            <p style="font-size: 1.1rem; color: #0f172a;"><strong>المبلغ الإجمالي المطلـوب:</strong> ${grandTotal} ج.م</p>
+          </div>
+          <div class="footer">
+            <p>شكراً لتسوقكم معنا في AhmedStor!</p>
+          </div>
+        </div>
+      `;
     }
 
-    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const fileInput = document.getElementById('pImageFile');
-      if (!fileInput.files || fileInput.files.length === 0) {
-        alert('يرجى اختيار صورة للمنتج من الهاتف!');
+    // فتح نافذة طباعة تشمل الفواتير المختارة
+    window.openPrintWindow = function(invoicesHTML) {
+      const printWindow = window.open('', '', 'width=800,height=600');
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>طباعة الفواتير</title>
+          <style>
+            @media print {
+              .invoice-page {
+                page-break-after: always;
+                box-shadow: none !important;
+                margin: 0 !important;
+              }
+            }
+            body { font-family: 'Tajawal', Arial, sans-serif; padding: 10px; color: #1e293b; background: #fff; }
+            .invoice-page { 
+              padding: 20px; 
+              border: 1px dashed #ccc; 
+              margin-bottom: 30px; 
+              border-radius: 8px;
+            }
+            .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 15px; }
+            .header h2 { margin: 0; font-size: 1.4rem; }
+            .info-grid { display: flex; justify-content: space-between; margin-bottom: 15px; }
+            .info-box p { margin: 3px 0; font-size: 0.85rem; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; }
+            th { background: #f1f5f9; border: 1px solid #ccc; padding: 6px; }
+            .total-box { text-align: left; font-size: 0.95rem; }
+            .total-box p { margin: 3px 0; }
+            .footer { text-align: center; margin-top: 20px; font-size: 0.75rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px; }
+          </style>
+        </head>
+        <body>
+          ${invoicesHTML}
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    };
+
+    // طباعة الفواتير المحددة جماعياً
+    window.printSelectedInvoices = function() {
+      const selectedBoxes = document.querySelectorAll('.order-select-checkbox:checked');
+      if (selectedBoxes.length === 0) {
+        alert('برجاء تحديد طلب واحد على الأقل للطباعة!');
         return;
       }
 
-      const btn = document.getElementById('submitBtn');
-      btn.innerText = 'جاري رفع الصورة والمنتج...';
+      let combinedHTML = '';
+      selectedBoxes.forEach(cb => {
+        const key = cb.value;
+        if (currentOrders[key]) {
+          combinedHTML += generateInvoiceHTML(key, currentOrders[key]);
+        }
+      });
+
+      openPrintWindow(combinedHTML);
+    };
+
+    // طباعة فاتورة منفردة
+    window.printSingleInvoice = function(key) {
+      if (currentOrders[key]) {
+        openPrintWindow(generateInvoiceHTML(key, currentOrders[key]));
+      }
+    };
+
+    // تصدير الطلبات المحدثة لإكسيل
+    window.exportOrdersToExcel = async function() {
+      const btn = document.getElementById('exportBtn');
+      btn.innerText = 'جاري التصدير...';
       btn.disabled = true;
 
       try {
-        const imageBase64 = await convertFileToBase64(fileInput.files[0]);
+        const snapshot = await get(ref(db, 'orders'));
+        const latestData = snapshot.val() || {};
+        const keys = Object.keys(latestData);
 
-        const newProduct = {
-          title: document.getElementById('pTitle').value,
-          category: document.getElementById('pCategory').value,
-          price: Number(document.getElementById('pPrice').value),
-          image: imageBase64,
-          description: document.getElementById('pDesc').value
-        };
-
-        await push(ref(db, 'products'), newProduct);
-        alert('تمت إضافة المنتج بالصورة بنجاح!');
-        document.getElementById('addProductForm').reset();
-      } catch (err) {
-        alert('حدث خطأ أثناء تحميل الصورة: ' + err.message);
-      } finally {
-        btn.innerText = 'حفظ المنتج';
-        btn.disabled = false;
-      }
-    });
-
-    window.deleteProduct = function(key) {
-      if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
-        remove(ref(db, 'products/' + key));
-      }
-    };
-
-    // 4. تصدير الفواتير الجديدة فقط مع إظهار الشحن والتنسيق الصحيح
-    window.exportExcelInvoice = async function() {
-      const todayISO = new Date().toISOString().split('T')[0];
-      const snapshot = await get(ref(db, 'orders'));
-      const orders = snapshot.val() || {};
-
-      // تصفية الطلبات الجديدة التي لم تُصدر من قبل
-      const newOrderKeys = Object.keys(orders).filter(key => {
-        return !orders[key].exported;
-      });
-
-      if (newOrderKeys.length === 0) {
-        alert('لا توجد طلبات جديدة لتصديرها! جميع الطلبات المسجلة تم تصديرها من قبل.');
-        return;
-      }
-
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('فواتير جديدة', {
-        views: [{ rtl: true }]
-      });
-
-      // أبعاد الأعمدة الأربعة لضمان محاذاة الفاتورة والطباعة
-      worksheet.columns = [
-        { width: 28 }, // A: المسمى / اسم المنتج
-        { width: 14 }, // B: السعر الفردي / القيمة
-        { width: 10 }, // C: الكمية
-        { width: 16 }  // D: الإجمالي الفرعي / النهائي
-      ];
-
-      const thinBorder = {
-        top: { style: 'thin', color: { argb: 'CBD5E1' } },
-        left: { style: 'thin', color: { argb: 'CBD5E1' } },
-        bottom: { style: 'thin', color: { argb: 'CBD5E1' } },
-        right: { style: 'thin', color: { argb: 'CBD5E1' } }
-      };
-
-      const updates = {}; // لتحديث حالة الطلبات بعد التصدير
-
-      newOrderKeys.forEach((key, index) => {
-        const o = orders[key];
-        updates[`orders/${key}/exported`] = true; // تعليم الطلب كـ مُصدّر
-
-        const startRow = worksheet.rowCount + 1;
-
-        // 1. ترويسة الفاتورة
-        const headerRow = worksheet.addRow([`AhmedStor - فاتورة رقم (${index + 1})`, '', '', '']);
-        worksheet.mergeCells(`A${headerRow.number}:D${headerRow.number}`);
-        headerRow.getCell(1).font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
-        headerRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0F172A' } };
-        headerRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
-
-        // 2. بيانات العميل
-        const rName = worksheet.addRow(['اسم العميل:', o.name || '', '', '']);
-        worksheet.mergeCells(`B${rName.number}:D${rName.number}`);
-
-        const rPhone = worksheet.addRow(['رقم الهاتف:', o.phone || '', '', '']);
-        worksheet.mergeCells(`B${rPhone.number}:D${rPhone.number}`);
-
-        const rAddress = worksheet.addRow(['العنوان:', o.address || '', '', '']);
-        worksheet.mergeCells(`B${rAddress.number}:D${rAddress.number}`);
-
-        [rName, rPhone, rAddress].forEach(row => {
-          row.getCell(1).font = { bold: true, color: { argb: '334155' } };
-          row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-          row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
-        });
-
-        // 3. جدول المنتجات
-        const tableHeader = worksheet.addRow(['المنتج', 'السعر', 'الكمية', 'الإجمالي']);
-        tableHeader.eachCell(cell => {
-          cell.font = { bold: true, color: { argb: 'FFFFFF' } };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } };
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        });
-
-        const cartItems = o.cart || [];
-        cartItems.forEach(item => {
-          const itemRow = worksheet.addRow([item.title, `${item.price} ج.م`, item.qty, `${item.price * item.qty} ج.م`]);
-          itemRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-          itemRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
-          itemRow.getCell(3).alignment = { horizontal: 'center', vertical: 'middle' };
-          itemRow.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
-        });
-
-        // 4. الحسابات المالية (مبلغ المنتجات + قيمة الشحن + الإجمالي شامل الشحن)
-        const subtotal = o.total || 0;
-        const shipping = Number(o.shippingFee) || 0;
-        const grandTotal = subtotal + shipping;
-
-        const subtotalRow = worksheet.addRow(['السعر:', '', '', `${subtotal} ج.م`]);
-        worksheet.mergeCells(`A${subtotalRow.number}:C${subtotalRow.number}`);
-
-        const shippingRow = worksheet.addRow(['الشحن:', '', '', shipping > 0 ? `${shipping} ج.م` : 'مجاني']);
-        worksheet.mergeCells(`A${shippingRow.number}:C${shippingRow.number}`);
-
-        const grandTotalRow = worksheet.addRow(['الإجمالي شامل الشحن:', '', '', `${grandTotal} ج.م`]);
-        worksheet.mergeCells(`A${grandTotalRow.number}:C${grandTotalRow.number}`);
-
-        [subtotalRow, shippingRow].forEach(row => {
-          row.getCell(1).font = { bold: true, color: { argb: '475569' } };
-          row.getCell(4).font = { bold: true, color: { argb: '0F172A' } };
-          row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-          row.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
-        });
-
-        grandTotalRow.getCell(1).font = { bold: true, size: 11, color: { argb: '0284C7' } };
-        grandTotalRow.getCell(4).font = { bold: true, size: 11, color: { argb: '0284C7' } };
-        grandTotalRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
-        grandTotalRow.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
-
-        const endRow = grandTotalRow.number;
-
-        // تطبيق الحدود والشبكة حول كل فاتورة
-        for (let r = startRow; r <= endRow; r++) {
-          for (let c = 1; c <= 4; c++) {
-            worksheet.getCell(r, c).border = thinBorder;
-          }
+        if (keys.length === 0) {
+          alert("لا توجد طلبات لتصديرها حالياً!");
+          return;
         }
 
-        // سطر فارغ كفاصل بين الفواتير
-        worksheet.addRow([]);
-      });
+        const exportRows = [];
 
-      // حفظ تحديث الطلبات في الفايربيس (تعليم الطلبات كـ exported)
-      await update(ref(db), updates);
+        keys.reverse().forEach(key => {
+          const order = latestData[key];
+          const subtotal = Number(order.subtotal) || 0;
+          const shippingFee = Number(order.shippingFee) || 0;
+          const grandTotal = Number(order.total) || (subtotal + shippingFee);
 
-      // تنزيل ملف الإكسيل
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `AhmedStor_New_Orders_${todayISO}.xlsx`;
-      a.click();
-      window.URL.revokeObjectURL(url);
+          const itemsDetail = order.cart 
+            ? order.cart.map(item => `${item.title} (الكمية: ${item.qty})`).join(' | ')
+            : 'لا توجد تفاصيل';
 
-      // توجيه للواتساب مع الرسالة والرقم المطلوب
-      const msg = `*فواتير جديدة (AhmedStor)* 📄\n\n- عدد الفواتير الجديدة: ${newOrderKeys.length}\n- تم تصدير الملف بنجاح وتحديث قاعدة البيانات.`;
-      window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
-    };
-  </script>
-</body>
-  </html>
-  
+          exportRows.push({
+            "رقم الطلب (ID)": key,
+            "تاريخ الطلب": order.dateFormatted || order.dateStr || 'غير محدد',
+            "اسم العميل": order.name || '',
+            "رقم الهاتف": order.phone || '',
+            "العنوان": order.address || '',
+            "تفاصيل المنتجات": itemsDetail,
+            "إجمالي المنتجات": subtotal,
+            "الشحن": shippingFee,
+            "الإجمالي الكلي": grandTotal
+          });
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportRows);
+        const workbook = XLSX.utils.book_new();
+        XLSX
