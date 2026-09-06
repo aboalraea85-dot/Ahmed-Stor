@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AhmedStor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+    body { background: #f8fafc; color: #0f172a; padding-bottom: 80px; }
+    header { background: #0f172a; color: #fff; padding: 15px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    header h1 { font-size: 1.5rem; color: #38bdf8; }
+    
+    .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+    
+    /* فلترة الأقسام */
+    .categories { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+    .cat-btn { padding: 8px 16px; border: none; background: #e2e8f0; border-radius: 20px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .cat-btn.active { background: #0284c7; color: #fff; }
+
+    /* شبكة المنتجات */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+    .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #e2e8f0; }
+    .product-card img { width: 100%; height: 150px; object-fit: cover; background: #f1f5f9; }
+    .product-details { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .product-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 5px; color: #1e293b; }
+    .product-desc { font-size: 0.8rem; color: #64748b; margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-price { font-size: 1rem; font-weight: bold; color: #0284c7; margin-bottom: 10px; }
+    .add-to-cart { width: 100%; padding: 8px; background: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .add-to-cart:hover { background: #0369a1; }
+
+    /* شريط السلة السفلية */
+    .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0f172a; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.15); z-index: 1000; }
+    .cart-btn { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+
+    /* نافذة الطلب */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: center; padding: 15px; }
+    .modal-content { background: white; padding: 20px; border-radius: 12px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .modal h2 { margin-bottom: 15px; color: #0f172a; text-align: center; }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #475569; }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+    .cart-items-summary { background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+    .cart-item-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.85rem; }
+    .close-modal { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 8px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>AhmedStor</h1>
+  </header>
+
+  <div class="container">
+    <!-- أزرار الأقسام -->
+    <div class="categories">
+      <button class="cat-btn active" onclick="filterCategory('الكل')">الكل</button>
+      <button class="cat-btn" onclick="filterCategory('منتجات حريمي')">منتجات حريمي</button>
+      <button class="cat-btn" onclick="filterCategory('منتجات رجالي')">منتجات رجالي</button>
+      <button class="cat-btn" onclick="filterCategory('أخرى')">أخرى</button>
+    </div>
+
+    <!-- شبكة المنتجات -->
+    <div class="products-grid" id="productsGrid">
+      <p style="grid-column: 1/-1; text-align: center; color: #64748b;">جاري تحميل المنتجات...</p>
+    </div>
+  </div>
+
+  <!-- شريط السلة -->
+  <div class="cart-bar">
+    <div>
+      <span>العناصر: <strong id="cartCount">0</strong></span> | 
+      <span>الإجمالي: <strong id="cartTotal">0</strong> ج.م</span>
+    </div>
+    <button class="cart-btn" onclick="openOrderModal()">إتمام الطلب 🛒</button>
+  </div>
+
+  <!-- نافذة إتمام الطلب -->
+  <div class="modal" id="orderModal">
+    <div class="modal-content">
+      <h2>إتمام الطلب</h2>
+      <div class="cart-items-summary" id="cartSummary"></div>
+      
+      <form id="orderForm">
+        <div class="form-group">
+          <label>الاسم بالكامل</label>
+          <input type="text" id="custName" required placeholder="مثال: أحمد محمد">
+        </div>
+        <div class="form-group">
+          <label>رقم الهاتف</label>
+          <input type="tel" id="custPhone" required placeholder="مثال: 01012345678">
+        </div>
+        <div class="form-group">
+          <label>العنوان التفصيلي</label>
+          <textarea id="custAddress" rows="2" required placeholder="المدينة، الشارع، رقم العمارة..."></textarea>
+        </div>
+        <button type="submit" class="cart-btn" style="width: 100%;">إرسال الطلب عبر الواتساب 📱</button>
+      </form>
+      <button class="close-modal" onclick="closeOrderModal()">إلغاء</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
+      authDomain: "guevara-stor.firebaseapp.com",
+      databaseURL: "https://guevara-stor-default-rtdb.firebaseio.com",
+      projectId: "guevara-stor",
+      storageBucket: "guevara-stor.firebasestorage.app",
+      messagingSenderId: "931509510252",
+      appId: "1:931509510252:web:3b02b68c375d16aa863849",
+      measurementId: "G-PR371CFS2R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let allProducts = {};
+    let cart = [];
+    let currentCategory = 'الكل';
+
+    onValue(ref(db, 'products'), (snapshot) => {
+      allProducts = snapshot.val() || {};
+      renderProducts();
+    });
+
+    window.filterCategory = function(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText === cat);
+      });
+      renderProducts();
+    };
+
+    function renderProducts() {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '';
+
+      const keys = Object.keys(allProducts).filter(key => {
+        return currentCategory === 'الكل' || allProducts[key].category === currentCategory;
+      });
+
+      if (keys.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #64748b;">لا توجد منتجات في هذا القسم.</p>';
+        return;
+      }
+
+      keys.forEach(key => {
+        const p = allProducts[key];
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${p.image}" alt="${p.title}">
+          <div class="product-details">
+            <div>
+              <div class="product-title">${p.title}</div>
+              <div class="product-desc">${p.description || ''}</div>
+            </div>
+            <div>
+              <div class="product-price">${p.price} ج.م</div>
+              <button class="add-to-cart" onclick="addToCart('${p.title}', ${p.price})">إضافة للسلة 🛒</button>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    window.addToCart = function(title, price) {
+      const existing = cart.find(item => item.title === title);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ title, price, qty: 1 });
+      }
+      updateCartUI();
+    };
+
+    function updateCartUI() {
+      const count = cart.reduce((sum, item) => sum + item.qty, 0);
+      const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      document.getElementById('cartCount').innerText = count;
+      document.getElementById('cartTotal').innerText = total;
+    }
+
+    window.openOrderModal = function() {
+      if (cart.length === 0) {
+        alert('السلة فارغة! قم بإضافة بعض المنتجات أولاً.');
+        return;
+      }
+      const summary = document.getElementById('cartSummary');
+      summary.innerHTML = cart.map(item => `
+        <div class="cart-item-row">
+          <span>${item.title} (x${item.qty})</span>
+          <span>${item.price * item.qty} ج.م</span>
+        </div>
+      `).join('') + `<hr style="margin: 8px 0; border: 0; border-top: 1px solid #cbd5e1;">
+      <div class="cart-item-row" style="font-weight: bold;">
+        <span>الإجمالي</span>
+        <span>${document.getElementById('cartTotal').innerText} ج.م</span>
+      </div>`;
+
+      document.getElementById('orderModal').style.display = 'flex';
+    };
+
+    window.closeOrderModal = function() {
+      document.getElementById('orderModal').style.display = 'none';
+    };
+
+    document.getElementById('orderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('custName').value;
+      const phone = document.getElementById('custPhone').value;
+      const address = document.getElementById('custAddress').value;
+      const total = document.getElementById('cartTotal').innerText;
+
+      const orderData = {
+        name, phone, address, cart, total, date: new Date().toLocaleString('ar-EG')
+      };
+
+      try {
+        await push(ref(db, 'orders'), orderData);
+        
+        let msg = `*طلب جديد من المتجر* 🛒\n\n`;
+        msg += `*الاسم:* ${name}\n`;
+        msg += `*الهاتف:* ${phone}\n`;
+        msg += `*العنوان:* ${address}\n\n`;
+        msg += `*المنتجات:*\n`;
+        cart.forEach(i => {
+          msg += `- ${i.title} (الكمية: ${i.qty}) -> ${i.price * i.qty} ج.م\n`;
+        });
+        msg += `\n*الإجمالي:* ${total} ج.م`;
+
+        const whatsappNum = "201501008175"; // استبدل هذا برقمك
+        window.open(`https://wa.me/${whatsappNum}?text=${encodeURIComponent(msg)}`, '_blank');
+
+        cart = [];
+        updateCartUI();
+        closeOrderModal();
+        document.getElementById('orderForm').reset();
+      } catch (err) {
+        alert('حدث خطأ أثناء حفظ الطلب: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
