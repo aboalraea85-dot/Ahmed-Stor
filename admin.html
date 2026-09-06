@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- مكتبة تصدير ملفات الإكسيل XLSX -->
+    <!-- XLSX Export Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
@@ -35,21 +35,27 @@
             </button>
         </div>
 
+        <!-- تنبيه عند عدم ضبط مفاتيح Firebase -->
+        <div id="firebaseWarning" class="hidden bg-amber-100 border-r-4 border-amber-500 text-amber-900 p-4 rounded-lg mb-6 shadow-sm">
+            <p class="font-bold text-sm"><i class="fa-solid fa-triangle-exclamation text-amber-600 ml-1"></i> تنبيه هام:</p>
+            <p class="text-xs mt-1">تأكد من وضع بيانات Firebase الخاصة بك داخل أسطر كود الـ JavaScript لتعمل قاعدة البيانات بشكل صحيح.</p>
+        </div>
+
         <!-- أزرار التبديل بين الأقسام (Tabs) -->
         <div class="flex border-b border-gray-300 mb-6 bg-white rounded-t-xl overflow-hidden shadow-sm">
-            <button id="tab-btn-orders" onclick="switchTab('orders')" class="px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2">
+            <button id="tab-btn-orders" onclick="switchTab('orders')" class="px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2 transition-all">
                 <i class="fa-solid fa-list-check"></i> الطلبات
             </button>
-            <button id="tab-btn-products" onclick="switchTab('products')" class="px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2">
+            <button id="tab-btn-products" onclick="switchTab('products')" class="px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2 transition-all">
                 <i class="fa-solid fa-box"></i> إدارة المنتجات
             </button>
-            <button id="tab-btn-categories" onclick="switchTab('categories')" class="px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2">
+            <button id="tab-btn-categories" onclick="switchTab('categories')" class="px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2 transition-all">
                 <i class="fa-solid fa-folder"></i> إدارة الأقسام
             </button>
         </div>
 
         <!-- 1. تبويب الطلبات -->
-        <div id="tab-orders" class="tab-content block">
+        <div id="tab-orders" class="block">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div class="bg-white p-5 rounded-xl shadow-sm border text-center">
                     <p class="text-gray-500 font-semibold text-sm mb-1">إجمالي عدد الطلبات</p>
@@ -85,7 +91,7 @@
                         </thead>
                         <tbody id="ordersTableBody">
                             <tr>
-                                <td colspan="9" class="text-center py-6 text-gray-500">جاري تحميل البيانات...</td>
+                                <td colspan="9" class="text-center py-6 text-gray-500">لا توجد طلبات حالية.</td>
                             </tr>
                         </tbody>
                     </table>
@@ -94,40 +100,40 @@
         </div>
 
         <!-- 2. تبويب إدارة المنتجات -->
-        <div id="tab-products" class="tab-content hidden">
+        <div id="tab-products" class="hidden">
             <div class="bg-white p-6 rounded-xl shadow-sm border mb-6">
-                <h3 class="font-bold text-gray-800 mb-4">إضافة منتج جديد</h3>
+                <h3 class="font-bold text-gray-800 mb-4 text-lg">إضافة منتج جديد</h3>
                 <form id="addProductForm" onsubmit="handleAddProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="prodTitle" placeholder="اسم المنتج" required class="border p-2 rounded-lg text-sm">
-                    <input type="number" id="prodPrice" placeholder="السعر (ج.م)" required class="border p-2 rounded-lg text-sm">
-                    <input type="number" id="prodShipping" placeholder="مصاريف الشحن (ج.م)" value="0" class="border p-2 rounded-lg text-sm">
-                    <select id="prodCategory" required class="border p-2 rounded-lg text-sm bg-white">
-                        <!-- يتم التحميل تلقائياً -->
+                    <input type="text" id="prodTitle" placeholder="اسم المنتج" required class="border p-2.5 rounded-lg text-sm focus:outline-indigo-500">
+                    <input type="number" id="prodPrice" placeholder="السعر (ج.م)" required class="border p-2.5 rounded-lg text-sm focus:outline-indigo-500">
+                    <input type="number" id="prodShipping" placeholder="مصاريف الشحن (ج.م)" value="0" class="border p-2.5 rounded-lg text-sm focus:outline-indigo-500">
+                    <select id="prodCategory" required class="border p-2.5 rounded-lg text-sm bg-white focus:outline-indigo-500">
+                        <option value="">اختر القسم</option>
                     </select>
                     
-                    <!-- رفع الصورة من الملفات / الهاتف / الكمبيوتر -->
-                    <div class="md:col-span-2 border p-4 rounded-lg bg-indigo-50/40 border-indigo-100">
+                    <!-- قسم اختيار واضحة لرفع الصورة من الهاتف أو الكمبيوتر -->
+                    <div class="md:col-span-2 border-2 border-dashed border-indigo-200 p-4 rounded-xl bg-indigo-50/50">
                         <label class="block text-sm font-bold text-indigo-900 mb-2">
-                            <i class="fa-solid fa-cloud-arrow-up text-indigo-600 ml-1"></i> رفع الصورة من الملفات أو الجهاز:
+                            <i class="fa-solid fa-file-image text-indigo-600 ml-1"></i> رفع الصورة من الملفات أو الهاتف:
                         </label>
                         <input type="file" id="prodImageFile" accept="image/*" required class="block w-full text-sm text-gray-600 file:ml-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer border rounded-lg bg-white p-1">
-                        <p class="text-xs text-gray-500 mt-1">يمكنك اختيار صورة مباشرة من الاستوديو أو المجلدات الخاصة بجهازك.</p>
+                        <p class="text-xs text-gray-500 mt-2">يمكنك اختيار صورة مباشرة من استوديو الموبايل أو مجلدات الجهاز.</p>
                     </div>
 
-                    <textarea id="prodDesc" placeholder="وصف المنتج" class="border p-2 rounded-lg text-sm md:col-span-2" rows="2"></textarea>
-                    <button type="submit" id="submitProdBtn" class="bg-indigo-600 text-white font-bold py-2 rounded-lg md:col-span-2 hover:bg-indigo-700 transition">إضافة المنتج</button>
+                    <textarea id="prodDesc" placeholder="وصف المنتج" class="border p-2.5 rounded-lg text-sm md:col-span-2 focus:outline-indigo-500" rows="2"></textarea>
+                    <button type="submit" id="submitProdBtn" class="bg-indigo-600 text-white font-bold py-3 rounded-lg md:col-span-2 hover:bg-indigo-700 transition shadow">إضافة المنتج</button>
                 </form>
             </div>
             <div id="adminProductsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
 
         <!-- 3. تبويب إدارة الأقسام -->
-        <div id="tab-categories" class="tab-content hidden">
+        <div id="tab-categories" class="hidden">
             <div class="bg-white p-6 rounded-xl shadow-sm border max-w-md">
                 <h3 class="font-bold text-gray-800 mb-4">إضافة قسم جديد</h3>
                 <form onsubmit="handleAddCategory(event)" class="flex gap-2">
-                    <input type="text" id="catName" placeholder="اسم القسم" required class="border p-2 rounded-lg text-sm flex-grow">
-                    <button type="submit" class="bg-indigo-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">إضافة</button>
+                    <input type="text" id="catName" placeholder="اسم القسم" required class="border p-2.5 rounded-lg text-sm flex-grow focus:outline-indigo-500">
+                    <button type="submit" class="bg-indigo-600 text-white font-bold px-5 py-2.5 rounded-lg hover:bg-indigo-700 transition text-sm shadow">إضافة</button>
                 </form>
                 <ul id="adminCategoriesList" class="mt-4 divide-y"></ul>
             </div>
@@ -142,7 +148,27 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // إعدادات Firebase الخاصة بمشروعك
+        // دالة التنقل المستقلة المضمونة (لا تعتمد على الفايربيس إطلاقاً)
+        function switchTab(tabName) {
+            const tabs = ['orders', 'products', 'categories'];
+            
+            tabs.forEach(t => {
+                const contentEl = document.getElementById('tab-' + t);
+                const btnEl = document.getElementById('tab-btn-' + t);
+                
+                if (t === tabName) {
+                    contentEl.classList.remove('hidden');
+                    contentEl.classList.add('block');
+                    btnEl.className = "px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2 transition-all";
+                } else {
+                    contentEl.classList.remove('block');
+                    contentEl.classList.add('hidden');
+                    btnEl.className = "px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2 transition-all";
+                }
+            });
+        }
+
+        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -153,44 +179,21 @@
             appId: "YOUR_APP_ID"
         };
 
-        // تهيئة فايربيس بطريقة آمنة لا تتسبب في إيقاف جافاسكريبت
         let db = null;
-        try {
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            db = firebase.database();
-        } catch (e) {
-            console.log("Firebase status:", e.message);
-        }
-
         let rawOrdersData = {};
 
-        // --- دالة التنقل المباشرة والأكيدة بين الأقسام ---
-        function switchTab(tabName) {
-            // 1. إخفاء كافة الأقسام
-            document.getElementById('tab-orders').style.display = 'none';
-            document.getElementById('tab-products').style.display = 'none';
-            document.getElementById('tab-categories').style.display = 'none';
-
-            // 2. إعادة إتاحة الـ style الأفتراضي للزرار
-            const btnOrders = document.getElementById('tab-btn-orders');
-            const btnProducts = document.getElementById('tab-btn-products');
-            const btnCategories = document.getElementById('tab-btn-categories');
-
-            const inactiveClass = "px-6 py-3 font-bold text-sm text-gray-600 border-b-2 border-transparent hover:text-indigo-600 flex items-center gap-2";
-            const activeClass = "px-6 py-3 font-bold text-sm border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50/50 flex items-center gap-2";
-
-            btnOrders.className = inactiveClass;
-            btnProducts.className = inactiveClass;
-            btnCategories.className = inactiveClass;
-
-            // 3. إظهار القسم المطلوب وتفعيل زره
-            document.getElementById('tab-' + tabName).style.display = 'block';
-            document.getElementById('tab-btn-' + tabName).className = activeClass;
+        // تهيئة فايربيس بأمان تام
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+            } else {
+                document.getElementById('firebaseWarning').classList.remove('hidden');
+            }
+        } catch (e) {
+            console.warn("Firebase Init Status:", e.message);
         }
 
-        // --- تحميل البيانات عند تشغيل الصفحة ---
         document.addEventListener('DOMContentLoaded', () => {
             if (db) {
                 fetchOrders();
@@ -237,7 +240,7 @@
                             <td class="p-3">${order.customer?.address || '-'}</td>
                             <td class="p-3 text-xs text-gray-600 max-w-xs">${itemsSummary}</td>
                             <td class="p-3 text-gray-600">${shippingFee} ج.م</td>
-                            <td class="p-3 font-bold text-indigo-600">${grandTotal} ج.m</td>
+                            <td class="p-3 font-bold text-indigo-600">${grandTotal} ج.م</td>
                             <td class="p-3 text-xs text-gray-500">${dateStr}</td>
                             <td class="p-3">
                                 <button onclick="deleteOrder('${key}')" class="text-red-500 hover:text-red-700 font-bold text-xs"><i class="fa-solid fa-trash"></i> حذف</button>
@@ -255,7 +258,6 @@
             document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = master.checked);
         }
 
-        // تصدير الطلبات لإكسيل
         function exportToExcel() {
             if (Object.keys(rawOrdersData).length === 0) {
                 alert('لا توجد بيانات طلبات لتصديرها!');
@@ -290,7 +292,6 @@
             XLSX.writeFile(workbook, `AhmedStor_Orders_${dateNow}.xlsx`);
         }
 
-        // طباعة الفواتير
         function printSelectedInvoices() {
             const selectedBoxes = document.querySelectorAll('.order-checkbox:checked');
             if (selectedBoxes.length === 0) {
@@ -339,10 +340,9 @@
             printArea.style.display = 'none';
         }
 
-        // إضافة المنتج وقراءة الصورة المرفوعة من الجهاز
         function handleAddProduct(e) {
             e.preventDefault();
-            if(!db) { alert('يرجى ضبط بيانات Firebase أولاً'); return; }
+            if(!db) { alert('يرجى إضافة بيانات Firebase الخاصة بك في الكود أولاً'); return; }
 
             const submitBtn = document.getElementById('submitProdBtn');
             const fileInput = document.getElementById('prodImageFile');
@@ -353,7 +353,7 @@
             }
 
             submitBtn.disabled = true;
-            submitBtn.innerText = "جاري قراءة الصورة وتجهيزها...";
+            submitBtn.innerText = "جاري رفع وقراءة الصورة...";
 
             const file = fileInput.files[0];
             const reader = new FileReader();
@@ -363,10 +363,4 @@
 
                 db.ref('products').push({
                     title: document.getElementById('prodTitle').value,
-                    price: Number(document.getElementById('prodPrice').value),
-                    shippingFee: Number(document.getElementById('prodShipping').value || 0),
-                    category: document.getElementById('prodCategory').value,
-                    image: imageBase64,
-                    description: document.getElementById('prodDesc').value
-                }).then(() => {
-                    e.
+                    price: Number(document.ge
