@@ -390,11 +390,13 @@
     let shippingFee = 0;
     let cardQuantities = {};
 
+    // جلب الشحن
     onValue(ref(db, 'settings/shippingFee'), (snapshot) => {
       shippingFee = Number(snapshot.val()) || 0;
       updateCartUI();
     });
 
+    // جلب الأقسام
     onValue(ref(db, 'categories'), (snapshot) => {
       if (snapshot.exists()) {
         categories = snapshot.val();
@@ -402,6 +404,7 @@
       renderCategories();
     });
 
+    // جلب المنتجات
     onValue(ref(db, 'products'), (snapshot) => {
       products = snapshot.val() || {};
       Object.keys(products).forEach(key => {
@@ -545,6 +548,7 @@
       document.getElementById('cartModal').style.display = 'none';
     };
 
+    // إرسال الطلب بعد التعديل وتأكيد إضافة الشحن للإجمالي الكلي
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -553,6 +557,7 @@
       btn.disabled = true;
 
       const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+      const grandTotal = subtotal + shippingFee; // المجموع الكلي الدقيق
       const todayISO = new Date().toISOString().split('T')[0];
 
       const orderData = {
@@ -562,7 +567,7 @@
         cart: cart,
         subtotal: subtotal,
         shippingFee: shippingFee,
-        total: subtotal,
+        total: grandTotal, // الإجمالي النهائي الشامل الشحن
         dateStr: todayISO,
         dateFormatted: new Date().toLocaleDateString('ar-EG'),
         exported: false
