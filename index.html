@@ -1,583 +1,353 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لوحة التحكم الشاملة - AhmedStor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- مكتبة XLSX لتصدير ملفات الإكسيل -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --primary: #0f172a;
-      --accent: #0284c7;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --border: #e2e8f0;
-      --text: #1e293b;
-      --text-muted: #64748b;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 16px; padding-bottom: 50px; }
-
-    header {
-      background: var(--primary);
-      color: white;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    header h1 { font-size: 1.25rem; font-weight: 700; }
-
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      border-bottom: 2px solid var(--border);
-    }
-    .tab-btn {
-      padding: 10px 18px;
-      border: 1px solid var(--border);
-      background: var(--card-bg);
-      color: var(--text-muted);
-      border-radius: 10px 10px 0 0;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      font-size: 0.9rem;
-    }
-    .tab-btn.active {
-      background: var(--accent);
-      color: white;
-      border-color: var(--accent);
-    }
-
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .btn {
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-success { background: var(--success); color: white; }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-warning { background: var(--warning); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-
-    .stats-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-    .stat-card {
-      background: var(--card-bg);
-      padding: 16px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      text-align: center;
-    }
-    .stat-card h3 { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    .stat-card .val { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      padding: 16px;
-      margin-bottom: 20px;
-    }
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 14px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
-    }
-
-    .action-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 4px; }
-    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); }
-    .form-group input, .form-group select {
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      outline: none;
-      font-size: 0.85rem;
-    }
-
-    .table-container {
-      background: var(--card-bg);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: right;
-      font-size: 0.85rem;
-    }
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    th {
-      background: #f1f5f9;
-      color: var(--primary);
-      font-weight: 700;
-    }
-    tr:hover { background: #f8fafc; }
-
-    .prod-img-td {
-      width: 45px;
-      height: 45px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AhmedStor - المتجر الإلكتروني</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-  <header>
-    <h1>⚙️ لوحة إدارة المتجر - AhmedStor</h1>
-    <button class="btn btn-success" id="exportBtn" onclick="exportOrdersToExcel()">📥 تصدير الطلبات المحدثة لإكسيل</button>
-  </header>
-
-  <!-- التبويبات الرئيسيـة -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('ordersTab', this)">📋 إدارة الطلبات</button>
-    <button class="tab-btn" onclick="switchTab('productsTab', this)">📦 إدارة المنتجات</button>
-    <button class="tab-btn" onclick="switchTab('categoriesTab', this)">📁 إدارة الأقسام</button>
-    <button class="tab-btn" onclick="switchTab('settingsTab', this)">🚚 مصاريف الشحن</button>
-  </div>
-
-  <!-- 1️⃣ تبويب الطلبات -->
-  <div id="ordersTab" class="tab-content active">
-    <div class="stats-cards">
-      <div class="stat-card">
-        <h3>إجمالي عدد الطلبات</h3>
-        <div class="val" id="totalOrdersCount">0</div>
-      </div>
-      <div class="stat-card">
-        <h3>إجمالي المبيعات</h3>
-        <div class="val" id="totalSalesAmount">0 ج.م</div>
-      </div>
-    </div>
-
-    <!-- شريط الإجراءات الجماعية -->
-    <div class="action-bar">
-      <button class="btn btn-primary" onclick="printSelectedInvoices()">🖨️ طباعة الفواتير المحددة</button>
-    </div>
-
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th style="width: 30px;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
-            <th>التاريخ</th>
-            <th>اسم العميل</th>
-            <th>الهاتف</th>
-            <th>العنوان</th>
-            <th>تفاصيل المنتجات</th>
-            <th>إجمالي المنتجات</th>
-            <th>الشحن</th>
-            <th>الإجمالي الكلي</th>
-            <th>الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody id="ordersTableBody">
-          <tr>
-            <td colspan="10" style="text-align:center; padding: 20px; color: var(--text-muted);">جاري تحميل الطلبات...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 2️⃣ تبويب المنتجات -->
-  <div id="productsTab" class="tab-content">
-    <div class="card">
-      <div class="card-title" id="productFormTitle">إضافة منتج جديد ➕</div>
-      <form id="productForm">
-        <input type="hidden" id="editProductId">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>اسم المنتج</label>
-            <input type="text" id="pTitle" required placeholder="مثال: تيشرت قطن">
-          </div>
-          <div class="form-group">
-            <label>السعر (ج.م)</label>
-            <input type="number" id="pPrice" required placeholder="150">
-          </div>
-          <div class="form-group">
-            <label>القسم</label>
-            <select id="pCategory" required></select>
-          </div>
-          <div class="form-group">
-            <label>رابط الصورة (URL)</label>
-            <input type="url" id="pImage" required placeholder="https://...">
-          </div>
+    <!-- الهيدر / الشريط العلوي -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold tracking-wide">AhmedStor</h1>
+            
+            <!-- زر السلة -->
+            <button id="cartBtn" onclick="toggleCartModal()" class="relative bg-indigo-700 hover:bg-indigo-800 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                <i class="fa-solid font-bold fa-cart-shopping"></i>
+                <span>السلة</span>
+                <span id="cartCount" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+            </button>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button type="submit" class="btn btn-primary" id="saveProductBtn">حفظ المنتج 💾</button>
-          <button type="button" class="btn btn-danger" id="cancelEditBtn" style="display:none;" onclick="resetProductForm()">إلغاء التعديل</button>
+    </header>
+
+    <!-- الأقسام الرئيسية -->
+    <section class="container mx-auto px-4 py-6">
+        <h2 class="text-xl font-bold mb-4 border-r-4 border-indigo-600 pr-3">الأقسام</h2>
+        <div id="categoriesList" class="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <button onclick="filterCategory('all')" class="category-btn active-cat bg-indigo-600 text-white px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition">الكل</button>
+            <!-- سيتم تحميل باقي الأقسام من Firebase -->
         </div>
-      </form>
-    </div>
+    </section>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>الصورة</th>
-            <th>اسم المنتج</th>
-            <th>السعر</th>
-            <th>القسم</th>
-            <th>الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody id="productsTableBody">
-          <tr>
-            <td colspan="5" style="text-align:center; padding: 20px; color: var(--text-muted);">جاري تحميل المنتجات...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 3️⃣ تبويب الأقسام -->
-  <div id="categoriesTab" class="tab-content">
-    <div class="card">
-      <div class="card-title">إضافة قسم جديد 📁</div>
-      <form id="categoryForm" style="display:flex; gap:10px; max-width: 500px;">
-        <input type="text" id="catNameInput" class="form-group" style="flex:1; padding:8px;" placeholder="اسم القسم الجديد..." required>
-        <button type="submit" class="btn btn-primary">إضافة القسم</button>
-      </form>
-    </div>
-
-    <div class="card">
-      <div class="card-title">الأقسام الحالية</div>
-      <ul id="categoriesList" style="list-style: none; display: flex; flex-wrap: wrap; gap: 8px;"></ul>
-    </div>
-  </div>
-
-  <!-- 4️⃣ تبويب الإعدادات والمصاريف -->
-  <div id="settingsTab" class="tab-content">
-    <div class="card" style="max-width: 400px;">
-      <div class="card-title">إعدادات مصاريف الشحن 🚚</div>
-      <form id="shippingForm">
-        <div class="form-group" style="margin-bottom:12px;">
-          <label>قيمة الشحن (ج.م)</label>
-          <input type="number" id="shippingFeeInput" required placeholder="50">
+    <!-- عرض المنتجات -->
+    <main class="container mx-auto px-4 py-4 flex-grow">
+        <h2 class="text-xl font-bold mb-4 border-r-4 border-indigo-600 pr-3">المنتجات</h2>
+        <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- سيتم تحميل المنتجات هنا -->
+            <p class="col-span-full text-center text-gray-500 py-8">جاري تحميل المنتجات...</p>
         </div>
-        <button type="submit" class="btn btn-success">حفظ الشحن</button>
-      </form>
-    </div>
-  </div>
+    </main>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, set, push, get, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
-      authDomain: "guevara-stor.firebaseapp.com",
-      databaseURL: "https://guevara-stor-default-rtdb.firebaseio.com",
-      projectId: "guevara-stor",
-      storageBucket: "guevara-stor.firebasestorage.app",
-      messagingSenderId: "931509510252",
-      appId: "1:931509510252:web:3b02b68c375d16aa863849"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let currentOrders = {};
-    let currentProducts = {};
-    let currentCategories = ["الكل"];
-
-    // التنقل بين التبويبات
-    window.switchTab = function(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      btn.classList.add('active');
-    };
-
-    // --- 1️⃣ إدارة الطلبات ---
-    onValue(ref(db, 'orders'), (snapshot) => {
-      currentOrders = snapshot.val() || {};
-      renderOrders(currentOrders);
-    });
-
-    function renderOrders(data) {
-      const tbody = document.getElementById('ordersTableBody');
-      const keys = Object.keys(data);
-      document.getElementById('totalOrdersCount').innerText = keys.length;
-
-      if (keys.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:20px;">لا توجد أي طلبات.</td></tr>';
-        document.getElementById('totalSalesAmount').innerText = '0 ج.م';
-        return;
-      }
-
-      let totalSales = 0;
-      tbody.innerHTML = '';
-
-      keys.reverse().forEach(key => {
-        const order = data[key];
-        const subtotal = Number(order.subtotal) || 0;
-        const shippingFee = Number(order.shippingFee) || 0;
-        const grandTotal = Number(order.total) || (subtotal + shippingFee);
-
-        totalSales += grandTotal;
-
-        const cartText = order.cart 
-          ? order.cart.map(i => `${i.title} (${i.qty})`).join('<br>') 
-          : 'لا توجد تفاصيل';
-
-        tbody.innerHTML += `
-          <tr>
-            <td><input type="checkbox" class="order-select-checkbox" value="${key}"></td>
-            <td>${order.dateFormatted || order.dateStr || '-'}</td>
-            <td><strong>${order.name || '-'}</strong></td>
-            <td><a href="tel:${order.phone}" style="color:var(--accent); text-decoration:none;">${order.phone || '-'}</a></td>
-            <td>${order.address || '-'}</td>
-            <td>${cartText}</td>
-            <td>${subtotal} ج.م</td>
-            <td>${shippingFee} ج.م</td>
-            <td><strong>${grandTotal} ج.م</strong></td>
-            <td style="display:flex; gap:4px;">
-              <button class="btn btn-primary" style="padding:4px 8px; font-size:0.75rem;" onclick="printSingleInvoice('${key}')">طباعة 🖨️</button>
-              <button class="btn btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteOrder('${key}')">حذف 🗑️</button>
-            </td>
-          </tr>
-        `;
-      });
-
-      document.getElementById('totalSalesAmount').innerText = `${totalSales} ج.م`;
-    }
-
-    // تحديد / إلغاء تحديد كافة الطلبات
-    window.toggleSelectAll = function(source) {
-      const checkboxes = document.querySelectorAll('.order-select-checkbox');
-      checkboxes.forEach(cb => cb.checked = source.checked);
-    };
-
-    // دوال بناء كود HTML للطباعة
-    function generateInvoiceHTML(key, order) {
-      const subtotal = Number(order.subtotal) || 0;
-      const shippingFee = Number(order.shippingFee) || 0;
-      const grandTotal = Number(order.total) || (subtotal + shippingFee);
-
-      let itemsRows = '';
-      if (order.cart && order.cart.length > 0) {
-        order.cart.forEach((item, index) => {
-          const itemPrice = Number(item.price) || 0;
-          const itemQty = Number(item.qty) || 1;
-          itemsRows += `
-            <tr>
-              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${index + 1}</td>
-              <td style="border: 1px solid #ccc; padding: 6px;">${item.title}</td>
-              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${itemQty}</td>
-              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${itemPrice} ج.م</td>
-              <td style="border: 1px solid #ccc; padding: 6px; text-align: center;">${itemPrice * itemQty} ج.م</td>
-            </tr>
-          `;
-        });
-      }
-
-      return `
-        <div class="invoice-page">
-          <div class="header">
-            <h2>فاتورة مبيعات - AhmedStor</h2>
-            <p>رقم الطلب: #${key}</p>
-          </div>
-          <div class="info-grid">
-            <div class="info-box">
-              <p><strong>اسم العميل:</strong> ${order.name || '-'}</p>
-              <p><strong>رقم الهاتف:</strong> ${order.phone || '-'}</p>
-              <p><strong>العنوان:</strong> ${order.address || '-'}</p>
+    <!-- Modal سلة التسوق وإتمام الطلب -->
+    <div id="cartModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- رأس النافذة -->
+            <div class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold"><i class="fa-solid fa-cart-shopping ml-2"></i>سلة الشراء</h3>
+                <button onclick="toggleCartModal()" class="text-white hover:text-gray-200 text-xl font-bold">&times;</button>
             </div>
-            <div class="info-box" style="text-align: left;">
-              <p><strong>تاريخ الطلب:</strong> ${order.dateFormatted || order.dateStr || '-'}</p>
+
+            <!-- قائمة عناصر السلة -->
+            <div id="cartItems" class="p-4 overflow-y-auto flex-grow divide-y">
+                <!-- المنتجات بالسلة -->
             </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>اسم المنتج</th>
-                <th>الكمية</th>
-                <th>سعر القطعة</th>
-                <th>الإجمالي</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsRows}
-            </tbody>
-          </table>
-          <div class="total-box">
-            <p><strong>مجموع المنتجات:</strong> ${subtotal} ج.م</p>
-            <p><strong>مصاريف الشحن:</strong> ${shippingFee} ج.م</p>
-            <p style="font-size: 1.1rem; color: #0f172a;"><strong>المبلغ الإجمالي المطلـوب:</strong> ${grandTotal} ج.م</p>
-          </div>
-          <div class="footer">
-            <p>شكراً لتسوقكم معنا في AhmedStor!</p>
-          </div>
+
+            <!-- تفاصيل الطلب والحساب الإجمالي -->
+            <div class="p-4 bg-gray-50 border-t">
+                <div class="flex justify-between items-center mb-4 font-bold text-lg">
+                    <span>الإجمالي:</span>
+                    <span id="cartTotal" class="text-indigo-600">0 ج.م</span>
+                </div>
+
+                <!-- نموذج بيانات العميل -->
+                <form id="orderForm" onsubmit="handleCheckout(event)" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">الاسم بالكامل</label>
+                        <input type="text" id="custName" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="أدخل اسمك الكامل">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">رقم الهاتف</label>
+                        <input type="tel" id="custPhone" required class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="01xxxxxxxxx">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">العنوان التفصيلي</label>
+                        <textarea id="custAddress" required rows="2" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="المحافظة، المدينة، الشارع..."></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition flex items-center justify-center gap-2 mt-2">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                        <span>تأكيد الطلب عبر واتساب</span>
+                    </button>
+                </form>
+            </div>
         </div>
-      `;
-    }
+    </div>
 
-    // فتح نافذة طباعة تشمل الفواتير المختارة
-    window.openPrintWindow = function(invoicesHTML) {
-      const printWindow = window.open('', '', 'width=800,height=600');
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar" dir="rtl">
-        <head>
-          <meta charset="UTF-8">
-          <title>طباعة الفواتير</title>
-          <style>
-            @media print {
-              .invoice-page {
-                page-break-after: always;
-                box-shadow: none !important;
-                margin: 0 !important;
-              }
-            }
-            body { font-family: 'Tajawal', Arial, sans-serif; padding: 10px; color: #1e293b; background: #fff; }
-            .invoice-page { 
-              padding: 20px; 
-              border: 1px dashed #ccc; 
-              margin-bottom: 30px; 
-              border-radius: 8px;
-            }
-            .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 15px; }
-            .header h2 { margin: 0; font-size: 1.4rem; }
-            .info-grid { display: flex; justify-content: space-between; margin-bottom: 15px; }
-            .info-box p { margin: 3px 0; font-size: 0.85rem; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.85rem; }
-            th { background: #f1f5f9; border: 1px solid #ccc; padding: 6px; }
-            .total-box { text-align: left; font-size: 0.95rem; }
-            .total-box p { margin: 3px 0; }
-            .footer { text-align: center; margin-top: 20px; font-size: 0.75rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-          </style>
-        </head>
-        <body>
-          ${invoicesHTML}
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-      }, 500);
-    };
+    <!-- الفوتر -->
+    <footer class="bg-gray-800 text-white text-center py-4 mt-8 text-sm">
+        <p>جميع الحقوق محفوظة &copy; 2026 - AhmedStor</p>
+    </footer>
 
-    // طباعة الفواتير المحددة جماعياً
-    window.printSelectedInvoices = function() {
-      const selectedBoxes = document.querySelectorAll('.order-select-checkbox:checked');
-      if (selectedBoxes.length === 0) {
-        alert('برجاء تحديد طلب واحد على الأقل للطباعة!');
-        return;
-      }
+    <!-- Firebase SDK (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-      let combinedHTML = '';
-      selectedBoxes.forEach(cb => {
-        const key = cb.value;
-        if (currentOrders[key]) {
-          combinedHTML += generateInvoiceHTML(key, currentOrders[key]);
+    <script>
+        // --- 1. إعدادات Firebase ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // تهيئة Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-      });
+        const db = firebase.database();
 
-      openPrintWindow(combinedHTML);
-    };
+        // --- 2. متغيرات الحالة العامة ---
+        let allProducts = [];
+        let cart = JSON.parse(localStorage.getItem('ahmedstor_cart')) || [];
+        let currentCategory = 'all';
 
-    // طباعة فاتورة منفردة
-    window.printSingleInvoice = function(key) {
-      if (currentOrders[key]) {
-        openPrintWindow(generateInvoiceHTML(key, currentOrders[key]));
-      }
-    };
-
-    // تصدير الطلبات المحدثة لإكسيل
-    window.exportOrdersToExcel = async function() {
-      const btn = document.getElementById('exportBtn');
-      btn.innerText = 'جاري التصدير...';
-      btn.disabled = true;
-
-      try {
-        const snapshot = await get(ref(db, 'orders'));
-        const latestData = snapshot.val() || {};
-        const keys = Object.keys(latestData);
-
-        if (keys.length === 0) {
-          alert("لا توجد طلبات لتصديرها حالياً!");
-          return;
-        }
-
-        const exportRows = [];
-
-        keys.reverse().forEach(key => {
-          const order = latestData[key];
-          const subtotal = Number(order.subtotal) || 0;
-          const shippingFee = Number(order.shippingFee) || 0;
-          const grandTotal = Number(order.total) || (subtotal + shippingFee);
-
-          const itemsDetail = order.cart 
-            ? order.cart.map(item => `${item.title} (الكمية: ${item.qty})`).join(' | ')
-            : 'لا توجد تفاصيل';
-
-          exportRows.push({
-            "رقم الطلب (ID)": key,
-            "تاريخ الطلب": order.dateFormatted || order.dateStr || 'غير محدد',
-            "اسم العميل": order.name || '',
-            "رقم الهاتف": order.phone || '',
-            "العنوان": order.address || '',
-            "تفاصيل المنتجات": itemsDetail,
-            "إجمالي المنتجات": subtotal,
-            "الشحن": shippingFee,
-            "الإجمالي الكلي": grandTotal
-          });
+        // --- 3. تحميل البيانات عند البدء ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCategories();
+            loadProducts();
+            updateCartUI();
         });
 
-        const worksheet = XLSX.utils.json_to_sheet(exportRows);
-        const workbook = XLSX.utils.book_new();
-        XLSX
+        // تحميل الأقسام
+        function loadCategories() {
+            db.ref('categories').on('value', (snapshot) => {
+                const categoriesList = document.getElementById('categoriesList');
+                categoriesList.innerHTML = `<button onclick="filterCategory('all')" class="category-btn ${currentCategory === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'} px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition">الكل</button>`;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const cat = child.val();
+                        const isSelected = currentCategory === cat.name;
+                        categoriesList.innerHTML += `
+                            <button onclick="filterCategory('${cat.name}')" class="category-btn ${isSelected ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'} px-4 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition">
+                                ${cat.name}
+                            </button>
+                        `;
+                    });
+                }
+            });
+        }
+
+        // تحميل المنتجات
+        function loadProducts() {
+            db.ref('products').on('value', (snapshot) => {
+                allProducts = [];
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        allProducts.push({ id: child.key, ...child.val() });
+                    });
+                }
+                renderProducts();
+            });
+        }
+
+        // تصفية المنتجات حسب القسم
+        function filterCategory(catName) {
+            currentCategory = catName;
+            loadCategories();
+            renderProducts();
+        }
+
+        // عرض المنتجات في الواجهة
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            const filtered = currentCategory === 'all' 
+                ? allProducts 
+                : allProducts.filter(p => p.category === currentCategory);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">لا توجد منتجات متوفرة حالياً.</p>';
+                return;
+            }
+
+            filtered.forEach(p => {
+                const cartItem = cart.find(item => item.id === p.id);
+                const qtyInCart = cartItem ? cartItem.qty : 0;
+
+                grid.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <img src="${p.image || 'https://via.placeholder.com/300'}" alt="${p.title}" class="w-full h-40 object-cover">
+                            <div class="p-3">
+                                <h3 class="font-bold text-gray-800 text-sm mb-1 line-clamp-1">${p.title}</h3>
+                                <p class="text-xs text-gray-500 mb-2 line-clamp-2">${p.description || ''}</p>
+                                <span class="text-indigo-600 font-extrabold text-base">${p.price} ج.م</span>
+                            </div>
+                        </div>
+                        <div class="p-3 pt-0">
+                            ${qtyInCart > 0 ? `
+                                <div class="flex items-center justify-between bg-indigo-50 border border-indigo-200 rounded-lg p-1">
+                                    <button onclick="changeQty('${p.id}', -1)" class="w-8 h-8 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition">-</button>
+                                    <span class="font-bold text-indigo-900">${qtyInCart}</span>
+                                    <button onclick="changeQty('${p.id}', 1)" class="w-8 h-8 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 transition">+</button>
+                                </div>
+                            ` : `
+                                <button onclick="addToCart('${p.id}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg text-sm transition flex items-center justify-center gap-1">
+                                    <i class="fa-solid fa-plus text-xs"></i> إضافة للسلة
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- 4. إدارة سلة التسوق ---
+        function addToCart(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    title: product.title,
+                    price: Number(product.price),
+                    image: product.image,
+                    qty: 1
+                });
+            }
+            saveCart();
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+            saveCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('ahmedstor_cart', JSON.stringify(cart));
+            updateCartUI();
+            renderProducts();
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            cartCount.innerText = totalQty;
+            cartTotal.innerText = totalPrice.toLocaleString() + ' ج.م';
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-center text-gray-500 py-6">السلة فارغة حالياً.</p>';
+                return;
+            }
+
+            cartItems.innerHTML = '';
+            cart.forEach(item => {
+                cartItems.innerHTML += `
+                    <div class="py-3 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-3">
+                            <img src="${item.image || 'https://via.placeholder.com/100'}" class="w-12 h-12 rounded object-cover">
+                            <div>
+                                <h4 class="font-bold text-sm text-gray-800">${item.title}</h4>
+                                <p class="text-xs text-indigo-600 font-semibold">${item.price} × ${item.qty} = ${item.price * item.qty} ج.م</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeQty('${item.id}', -1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-sm">-</button>
+                            <span class="font-bold text-sm">${item.qty}</span>
+                            <button onclick="changeQty('${item.id}', 1)" class="w-7 h-7 bg-gray-200 hover:bg-gray-300 rounded font-bold text-sm">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleCartModal() {
+            document.getElementById('cartModal').classList.toggle('hidden');
+        }
+
+        // --- 5. إتمام الطلب وتصديره إلى Firebase و WhatsApp ---
+        function handleCheckout(e) {
+            e.preventDefault();
+
+            if (cart.length === 0) {
+                alert('سلتك فارغة!');
+                return;
+            }
+
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            const orderData = {
+                customer: { name, phone, address },
+                items: cart,
+                totalAmount: total,
+                status: "جديد",
+                createdAt: new Date().toISOString()
+            };
+
+            // حفظ الطلب في Firebase Realtime Database
+            const newOrderRef = db.ref('orders').push();
+            newOrderRef.set(orderData).then(() => {
+                // بناء رسالة الواتساب
+                let msg = `*طلب جديد من AhmedStor*%0A%0A`;
+                msg += `*الاسم:* ${name}%0A`;
+                msg += `*الهاتف:* ${phone}%0A`;
+                msg += `*العنوان:* ${address}%0A%0A`;
+                msg += `*تفاصيل الطلب:*%0A`;
+
+                cart.forEach((item, index) => {
+                    msg += `${index + 1}. ${item.title} (الكمية: ${item.qty}) - ${item.price * item.qty} ج.م%0A`;
+                });
+
+                msg += `%0A*الإجمالي:* ${total} ج.م`;
+
+                // تفريغ السلة واغلاق النافذة
+                cart = [];
+                saveCart();
+                toggleCartModal();
+                document.getElementById('orderForm').reset();
+
+                // توجيه المستخدم لواتساب (ضع رقم هاتفك بدلاً من 201000000000)
+                const whatsappPhone = "201000000000"; 
+                window.open(`https://wa.me/${whatsappPhone}?text=${msg}`, '_blank');
+            }).catch(err => {
+                alert('حدث خطأ أثناء حفظ الطلب: ' + err.message);
+            });
+        }
+    </script>
+</body>
+  </html>
+  
