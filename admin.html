@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة التحكم - AhmedStor</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-  <!-- مكتبة ExcelJS لتنسيق وتقسيم الإكسيل وعمل الإطارات للطباعة -->
+  <!-- مكتبة ExcelJS لتنسيق الإكسيل والإطارات للطباعة -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
@@ -54,8 +54,8 @@
     <!-- 2. إرسال الطلبات إكسيل -->
     <div class="card">
       <h2>إدارة الطلبات والتقارير 📊</h2>
-      <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">تحميل فواتير اليوم مقسمة ومحاطة بالإطارات للطباعة باسم AhmedStor وإرسالها للواتساب.</p>
-      <button class="btn btn-green" onclick="exportExcelInvoice()">إرسال فواتير اليوم إكسيل للواتساب 📊</button>
+      <p style="font-size:0.85rem; color:#64748b; margin-bottom:12px;">تصدير الطلبات الجديدة فقط (التي لم تُصدر من قبل) في ملف إكسيل منظم للطباعة وإرساله عبر الواتساب.</p>
+      <button class="btn btn-green" onclick="exportExcelInvoice()">إرسال الفواتير الجديدة إكسيل للواتساب 📊</button>
     </div>
 
     <!-- 3. إضافة وتعديل الأقسام -->
@@ -108,7 +108,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, onValue, set, push, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, onValue, set, push, remove, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
@@ -221,7 +221,7 @@
       });
     }
 
-    // دالة تحويل ملف الصورة المحمل من الهاتف إلى Base64
+    // تحويل الصورة المحملة من الهاتف إلى Base64
     function convertFileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -272,122 +272,145 @@
       }
     };
 
-    // 4. تصدير الفواتير منسقة وجاهزة للطباعة مع إطارات بواسطة ExcelJS
+    // 4. تصدير الفواتير الجديدة فقط مع التنسيق المحترف
     window.exportExcelInvoice = async function() {
       const todayISO = new Date().toISOString().split('T')[0];
       const snapshot = await get(ref(db, 'orders'));
       const orders = snapshot.val() || {};
 
-      const todayOrders = Object.values(orders).filter(o => o.dateStr === todayISO);
+      // تصفية الطلبات الجديدة فقط (التي لم تُصدّر من قبل)
+      const newOrderKeys = Object.keys(orders).filter(key => !orders[key].exported);
 
-      if (todayOrders.length === 0) {
-        alert('لا توجد طلبات مسجلة اليوم حتى الآن!');
+      if (newOrderKeys.length === 0) {
+        alert('لا توجد طلبات جديدة لتصديرها! جميع الطلبات السابقة تم تصديرها بالفعل.');
         return;
       }
 
       const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('فواتير اليوم', {
-        views: [{ rtl: true }] // اتجاه من اليمين لليسار
+      const worksheet = workbook.addWorksheet('فواتير جديدة', {
+        views: [{ rtl: true }]
       });
 
-      // تحديد أبعاد الأعمدة الأربعة للطباعة المنظمة
+      // تحديد عرض الأعمدة الأربعة لضمان محاذاة صحيحة للطباعة
       worksheet.columns = [
-        { width: 28 }, // A: اسم المنتج
-        { width: 14 }, // B: السعر الفردي
+        { width: 28 }, // A: اسم المنتج / المسمى
+        { width: 14 }, // B: السعر الفردي / القيمة
         { width: 10 }, // C: الكمية
-        { width: 16 }  // D: الإجمالي
+        { width: 16 }  // D: الإجمالي الفرعي / النهائي
       ];
 
       const thinBorder = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' }
+        top: { style: 'thin', color: { argb: 'CBD5E1' } },
+        left: { style: 'thin', color: { argb: 'CBD5E1' } },
+        bottom: { style: 'thin', color: { argb: 'CBD5E1' } },
+        right: { style: 'thin', color: { argb: 'CBD5E1' } }
       };
 
-      todayOrders.forEach((o, index) => {
-        // ترويسة الفاتورة
+      const doubleBottomBorder = {
+        top: { style: 'thin', color: { argb: 'CBD5E1' } },
+        left: { style: 'thin', color: { argb: 'CBD5E1' } },
+        bottom: { style: 'double', color: { argb: '0F172A' } },
+        right: { style: 'thin', color: { argb: 'CBD5E1' } }
+      };
+
+      const updates = {}; // لتحديث حالة الطلبات إلى exported: true
+
+      newOrderKeys.forEach((key, index) => {
+        const o = orders[key];
+        updates[`orders/${key}/exported`] = true; // تعليم الطلب كـ مُصدّر
+
+        const startRow = worksheet.rowCount + 1;
+
+        // 1. عنوان الفاتورة بكتلة مدمجة
         const headerRow = worksheet.addRow([`AhmedStor - فاتورة رقم (${index + 1})`, '', '', '']);
         worksheet.mergeCells(`A${headerRow.number}:D${headerRow.number}`);
-        headerRow.getCell(1).font = { bold: true, size: 13, color: { argb: 'FFFFFF' } };
+        headerRow.getCell(1).font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
         headerRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0F172A' } };
         headerRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
 
-        // بيانات العميل
-        const r1 = worksheet.addRow(['اسم العميل:', o.name, 'رقم الهاتف:', o.phone]);
-        const r2 = worksheet.addRow(['العنوان:', o.address, 'التاريخ:', o.dateFormatted || '']);
-        worksheet.mergeCells(`B${r2.number}:D${r2.number}`);
+        // 2. بيانات العميل مرتبة ومحاذاة بشكل دقيق
+        const rName = worksheet.addRow(['اسم العميل:', o.name, '', '']);
+        worksheet.mergeCells(`B${rName.number}:D${rName.number}`);
 
-        [r1, r2].forEach(row => {
-          row.eachCell(cell => {
-            cell.font = { size: 10 };
-            cell.alignment = { vertical: 'middle' };
-          });
+        const rPhone = worksheet.addRow(['رقم الهاتف:', o.phone, '', '']);
+        worksheet.mergeCells(`B${rPhone.number}:D${rPhone.number}`);
+
+        const rAddress = worksheet.addRow(['العنوان:', o.address, '', '']);
+        worksheet.mergeCells(`B${rAddress.number}:D${rAddress.number}`);
+
+        [rName, rPhone, rAddress].forEach(row => {
+          row.getCell(1).font = { bold: true, color: { argb: '334155' } };
+          row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+          row.getCell(2).alignment = { horizontal: 'right', vertical: 'middle' };
         });
 
-        // رأس جدول المنتجات
-        const tableHeader = worksheet.addRow(['اسم المنتج', 'السعر الفردي', 'الكمية', 'الإجمالي الفرعي']);
+        // 3. جدول المنتجات
+        const tableHeader = worksheet.addRow(['المنتج', 'السعر', 'الكمية', 'الإجمالي']);
         tableHeader.eachCell(cell => {
           cell.font = { bold: true, color: { argb: 'FFFFFF' } };
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0284C7' } };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
 
-        const startRow = headerRow.number;
-
-        // صفوف المنتجات
         o.cart.forEach(item => {
           const itemRow = worksheet.addRow([item.title, `${item.price} ج.م`, item.qty, `${item.price * item.qty} ج.م`]);
-          itemRow.eachCell((cell, colNum) => {
-            cell.alignment = { horizontal: colNum === 1 ? 'right' : 'center', vertical: 'middle' };
-          });
+          itemRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+          itemRow.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+          itemRow.getCell(3).alignment = { horizontal: 'center', vertical: 'middle' };
+          itemRow.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
         });
 
-        // صفوف المبالغ والإجمالي
-        const subtotalRow = worksheet.addRow(['مبلغ المنتجات:', '', '', `${o.total} ج.م`]);
+        // 4. الحسابات المالية المفصولة
+        const subtotalRow = worksheet.addRow(['السعر:', '', '', `${o.total} ج.م`]);
         worksheet.mergeCells(`A${subtotalRow.number}:C${subtotalRow.number}`);
 
-        const shippingRow = worksheet.addRow(['قيمة الشحن:', '', '', `${o.shippingFee || 0} ج.م`]);
+        const shippingRow = worksheet.addRow(['الشحن:', '', '', `${o.shippingFee || 0} ج.م`]);
         worksheet.mergeCells(`A${shippingRow.number}:C${shippingRow.number}`);
 
-        const grandTotalRow = worksheet.addRow(['الإجمالي الكلي النهائي:', '', '', `${(o.total + (o.shippingFee || 0))} ج.م`]);
+        const grandTotalRow = worksheet.addRow(['الإجمالي شامل الشحن:', '', '', `${(o.total + (o.shippingFee || 0))} ج.م`]);
         worksheet.mergeCells(`A${grandTotalRow.number}:C${grandTotalRow.number}`);
 
-        [subtotalRow, shippingRow, grandTotalRow].forEach(row => {
-          row.getCell(1).font = { bold: true };
-          row.getCell(4).font = { bold: true };
-          row.getCell(1).alignment = { horizontal: 'left' };
-          row.getCell(4).alignment = { horizontal: 'center' };
+        [subtotalRow, shippingRow].forEach(row => {
+          row.getCell(1).font = { bold: true, color: { argb: '475569' } };
+          row.getCell(4).font = { bold: true, color: { argb: '0F172A' } };
+          row.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+          row.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
         });
+
+        grandTotalRow.getCell(1).font = { bold: true, size: 11, color: { argb: '0284C7' } };
+        grandTotalRow.getCell(4).font = { bold: true, size: 11, color: { argb: '0284C7' } };
+        grandTotalRow.getCell(1).alignment = { horizontal: 'right', vertical: 'middle' };
+        grandTotalRow.getCell(4).alignment = { horizontal: 'center', vertical: 'middle' };
 
         const endRow = grandTotalRow.number;
 
-        // وضع الإطار والحدود الكاملة حول الفاتورة الحالية
+        // تطبيق الحدود والإطار الخارجي لكل فاتورة
         for (let r = startRow; r <= endRow; r++) {
           for (let c = 1; c <= 4; c++) {
-            worksheet.getCell(r, c).border = thinBorder;
+            worksheet.getCell(r, c).border = (r === endRow) ? doubleBottomBorder : thinBorder;
           }
         }
 
-        // مسافة بين الفواتير
-        worksheet.addRow([]);
+        // سطر فارغ كفاصل بين الفواتير
         worksheet.addRow([]);
       });
 
-      // حفظ الملف ومشاركته
+      // حفظ وضع التصدير في قاعدة البيانات لمنع تكرار نزولها مجدداً
+      await update(ref(db), updates);
+
+      // تنزيل الملف ومشاركته
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Invoices_AhmedStor_${todayISO}.xlsx`;
+      a.download = `AhmedStor_New_Orders_${todayISO}.xlsx`;
       a.click();
       window.URL.revokeObjectURL(url);
 
-      const msg = `*فواتير يوم (${todayISO}) - AhmedStor* 📄\n\n- عدد الفواتير: ${todayOrders.length}\n- تم تنزيل الملف المنسق والمحاط بالإطارات للطباعة مباشرة.`;
+      const msg = `*فواتير جديدة (AhmedStor)* 📄\n\n- عدد الفواتير الجديدة: ${newOrderKeys.length}\n- تم تصدير الملف بنجاح وتحديث قاعدة البيانات لمنع تكرار الطلبات.`;
       window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank');
     };
   </script>
 </body>
-                                                                     </html>
-                                                                     
+</html>
