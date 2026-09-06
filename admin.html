@@ -3,18 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - AhmedStor</title>
-    <!-- Tailwind CSS -->
+    <title>لوحة التحكم الفائقة - AhmedStor Super Admin</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- SheetJS for Excel -->
+    <!-- Google Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chart.js for Advanced Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS for Advanced Excel Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body { font-family: 'Cairo', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
@@ -22,330 +48,254 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-cairo antialiased selection:bg-brand-500 selection:text-white">
 
-    <div class="flex flex-col md:flex-row min-h-screen">
+    <div class="flex h-screen overflow-hidden">
 
-        <!-- 1. الشريط الجانبي (Sidebar) -->
-        <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col justify-between shrink-0 shadow-lg">
+        <!-- ==================== 1. SIDEBAR (القائمة الجانبية) ==================== -->
+        <aside id="sidebar" class="w-72 bg-slate-950 border-l border-slate-800/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-30">
             <div>
-                <!-- الشعار / العنوان -->
-                <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+                <!-- Brand Header -->
+                <div class="p-5 border-b border-slate-800/80 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                            <i class="fa-solid fa-store text-xl text-white"></i>
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                            <i class="fa-solid fa-shield-halved text-2xl text-white"></i>
                         </div>
                         <div>
-                            <h2 class="font-extrabold text-base tracking-wide">AhmedStor</h2>
-                            <p class="text-xs text-slate-400">لوحة الإدارة v2.0</p>
+                            <h2 class="font-black text-lg tracking-wide bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">AhmedStor Pro</h2>
+                            <p class="text-[11px] font-semibold text-brand-400">الإصدار الشامل v3.0</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- قائمة التنقل -->
-                <nav class="p-4 space-y-1.5">
-                    <button id="nav-orders" onclick="switchSection('orders')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow-md shadow-indigo-600/20 transition-all">
-                        <i class="fa-solid fa-receipt text-lg w-5"></i>
-                        <span>إدارة الطلبات</span>
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1.5 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">الرئيسية والإحصائيات</p>
+                    
+                    <button id="nav-dashboard" onclick="switchTab('dashboard')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all">
+                        <i class="fa-solid fa-chart-pie text-lg w-5"></i>
+                        <span>لوحة القيادة والتحليلات</span>
                     </button>
 
-                    <button id="nav-products" onclick="switchSection('products')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إدارة المبيعات</p>
+
+                    <button id="nav-orders" onclick="switchTab('orders')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-boxes-packing text-lg w-5"></i>
+                        <span class="flex-1 text-right">إدارة الطلبات</span>
+                        <span id="badgeOrdersCount" class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">0</span>
+                    </button>
+
+                    <button id="nav-coupons" onclick="switchTab('coupons')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-ticket text-lg w-5"></i>
+                        <span>كوبونات الخصم</span>
+                    </button>
+
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">الكتالوج والمنتجات</p>
+
+                    <button id="nav-products" onclick="switchTab('products')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-box-archive text-lg w-5"></i>
-                        <span>إدارة المنتجات</span>
+                        <span>إدارة المنتجات والمخزون</span>
                     </button>
 
-                    <button id="nav-categories" onclick="switchSection('categories')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button id="nav-categories" onclick="switchTab('categories')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-layer-group text-lg w-5"></i>
-                        <span>إدارة الأقسام</span>
+                        <span>الأقسام والتصنيفات</span>
+                    </button>
+
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إعدادات النظام</p>
+
+                    <button id="nav-settings" onclick="switchTab('settings')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-sliders text-lg w-5"></i>
+                        <span>إعدادات المتجر والشحن</span>
                     </button>
                 </nav>
             </div>
 
-            <!-- زر التصدير الإكسيل في الأسفل -->
-            <div class="p-4 border-t border-slate-800">
-                <button onclick="exportToExcel()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+            <!-- Quick Actions Footer -->
+            <div class="p-4 border-t border-slate-800/80 bg-slate-950/50">
+                <button onclick="exportFullDataExcel()" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
                     <i class="fa-solid fa-file-excel text-base"></i>
-                    <span>تصدير الطلبات لإكسيل</span>
+                    <span>تصدير تقرير شامل Excel</span>
                 </button>
             </div>
         </aside>
 
-        <!-- 2. المحتوى الرئيسي (Main Area) -->
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-
-            <!-- شريط تنبيه Firebase -->
-            <div id="firebaseWarning" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 flex items-center gap-3 text-xs md:text-sm font-semibold">
-                <i class="fa-solid fa-circle-exclamation text-amber-600 text-xl"></i>
-                <span>تنبيه: الكود يعمل حالياً بدون ربط مع Firebase. يرجى وضع مفاتيح API الخاصة بك في نهاية الكود لحفظ البيانات بشكل حقيقي.</span>
-            </div>
-
-            <!-- A. قسم إدارة الطلبات -->
-            <section id="sec-orders" class="space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 class="text-2xl font-black text-gray-900">نظرة عامة والطلبات</h1>
-                        <p class="text-xs text-gray-500 mt-1">تابع إحصائيات مبيعاتك وفواتير العملاء مباشرة</p>
-                    </div>
-                    <button onclick="printSelectedInvoices()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
-                        <i class="fa-solid fa-print"></i>
-                        <span>طباعة الفواتير المحددة</span>
+        <!-- ==================== 2. MAIN CONTENT AREA ==================== -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-900">
+            
+            <!-- Top App Bar -->
+            <header class="h-16 border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800/40">
+                        <i class="fa-solid fa-bars text-lg"></i>
                     </button>
+                    <span id="currentTabTitle" class="font-black text-slate-200 text-base">لوحة القيادة والتحليلات</span>
                 </div>
 
-                <!-- بطاقات الإحصائيات -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400">إجمالي الطلبات</p>
-                            <h3 id="totalOrdersCount" class="text-3xl font-black text-slate-800 mt-1">0</h3>
+                <div class="flex items-center gap-4">
+                    <!-- Status Indicator -->
+                    <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-bold text-emerald-400">النظام متصل مباشر</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Dynamic Container -->
+            <main class="flex-1 p-6 overflow-y-auto custom-scrollbar">
+
+                <!-- تنبيه عدم ربط الفايربيس -->
+                <div id="firebaseWarning" class="hidden mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-3 text-sm font-semibold">
+                    <i class="fa-solid fa-circle-exclamation text-amber-400 text-xl shrink-0"></i>
+                    <span>تنبيه: يتم العمل حالياً بالبيانات المحلية المؤقتة. لربط المتجر بقاعدة بيانات Firebase حقيقية، يرجى إدخال مفاتيح API الخاصة بك في كود الصفحة.</span>
+                </div>
+
+                <!-- ================= TAB 1: DASHBOARD ================= -->
+                <section id="tab-dashboard" class="tab-content space-y-6">
+                    <!-- Metrics Overview Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">إجمالي المبيعات الأرباح</p>
+                            <h3 id="statTotalSales" class="text-2xl font-black text-emerald-400 mt-2">0 ج.م</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-cart-shopping"></i>
+
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">إجمالي الطلبات</p>
+                            <h3 id="statTotalOrders" class="text-2xl font-black text-brand-400 mt-2">0</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-cart-flatbed"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">عدد المنتجات النشطة</p>
+                            <h3 id="statTotalProducts" class="text-2xl font-black text-sky-400 mt-2">0</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-boxes-stacked"></i>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">معدل التحويل ومتوسط الطلب</p>
+                            <h3 id="statAvgOrder" class="text-2xl font-black text-amber-400 mt-2">0 ج.م</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-gray-400">إجمالي المبيعات (شامل الشحن)</p>
-                            <h3 id="totalSalesAmount" class="text-3xl font-black text-emerald-600 mt-1">0 ج.م</h3>
+                    <!-- Visual Analytics Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
+                            <h4 class="font-bold text-slate-200 text-sm mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-column text-brand-400"></i> إحصائيات الطلبات حسب الحالة
+                            </h4>
+                            <div class="h-64">
+                                <canvas id="chartOrderStatus"></canvas>
+                            </div>
                         </div>
-                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-                            <i class="fa-solid fa-wallet"></i>
+
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
+                            <h4 class="font-bold text-slate-200 text-sm mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-area text-emerald-400"></i> ملخص الإيرادات
+                            </h4>
+                            <div class="h-64">
+                                <canvas id="chartRevenue"></canvas>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <!-- جدول الطلبات -->
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100">
-                        <h3 class="font-bold text-gray-800 text-sm">سجل الطلبات الواردة</h3>
+                <!-- ================= TAB 2: ORDERS MANAGEMENT ================= -->
+                <section id="tab-orders" class="tab-content space-y-6 hidden">
+                    <!-- Top Toolbar & Filters -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex flex-wrap items-center gap-3 flex-1">
+                            <!-- Search -->
+                            <div class="relative min-w-[240px]">
+                                <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-slate-500 text-xs"></i>
+                                <input type="text" id="orderSearchInput" oninput="filterOrders()" placeholder="بحث باسم العميل أو رقم الهاتف..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl pr-9 pl-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <!-- Status Filter -->
+                            <select id="orderStatusFilter" onchange="filterOrders()" class="bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                                <option value="ALL">جميع الحالات</option>
+                                <option value="جديد">جديد</option>
+                                <option value="قيد المعالجة">قيد المعالجة</option>
+                                <option value="تم الشحن">تم الشحن</option>
+                                <option value="مكتمل">مكتمل</option>
+                                <option value="ملغي">ملغي</option>
+                            </select>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center gap-3">
+                            <button onclick="printSelectedInvoices()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-brand-600/20">
+                                <i class="fa-solid fa-print"></i>
+                                <span>طباعة الفواتير المحددة</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right text-xs md:text-sm">
-                            <thead class="bg-gray-50/80 text-gray-500 font-bold border-b border-gray-100">
-                                <tr>
-                                    <th class="p-4 w-10"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" class="rounded border-gray-300"></th>
-                                    <th class="p-4">العميل</th>
-                                    <th class="p-4">الهاتف</th>
-                                    <th class="p-4">العنوان</th>
-                                    <th class="p-4">المنتجات</th>
-                                    <th class="p-4">الشحن</th>
-                                    <th class="p-4">الإجمالي</th>
-                                    <th class="p-4">التاريخ</th>
-                                    <th class="p-4 text-center">إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTableBody" class="divide-y divide-gray-100">
-                                <tr>
-                                    <td colspan="9" class="text-center py-8 text-gray-400 font-semibold">لا توجد طلبات حتي الآن.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                    <!-- Orders Table -->
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-xs">
+                                <thead class="bg-slate-950/60 text-slate-400 font-bold border-b border-slate-700/60">
+                                    <tr>
+                                        <th class="p-4 w-10"><input type="checkbox" id="selectAllOrders" onclick="toggleSelectAllOrders(this)" class="rounded bg-slate-900 border-slate-700 text-brand-600 focus:ring-0"></th>
+                                        <th class="p-4">رقم الطلب</th>
+                                        <th class="p-4">بيانات العميل</th>
+                                        <th class="p-4">المنتجات والتفاصيل</th>
+                                        <th class="p-4">إجمالي المبلغ</th>
+                                        <th class="p-4">حالة الطلب</th>
+                                        <th class="p-4">التاريخ</th>
+                                        <th class="p-4 text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody" class="divide-y divide-slate-700/40 text-slate-300">
+                                    <!-- Dynamic Content -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
 
-            <!-- B. قسم إدارة المنتجات -->
-            <section id="sec-products" class="space-y-6 hidden">
-                <div>
-                    <h1 class="text-2xl font-black text-gray-900">إدارة المنتجات</h1>
-                    <p class="text-xs text-gray-500 mt-1">أضف منتجات جديدة ورفع صورها مباشرة من جهازك</p>
-                </div>
-
-                <!-- نموذج إضافة منتج -->
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="font-bold text-gray-800 text-sm mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-plus-circle text-indigo-600"></i> إضافة منتج جديد
-                    </h3>
-                    <form id="addProductForm" onsubmit="handleAddProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="prodTitle" placeholder="اسم المنتج" required class="border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-indigo-600 transition bg-gray-50/30">
-                        <input type="number" id="prodPrice" placeholder="السعر (ج.م)" required class="border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-indigo-600 transition bg-gray-50/30">
-                        <input type="number" id="prodShipping" placeholder="مصاريف الشحن (ج.م)" value="0" class="border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-indigo-600 transition bg-gray-50/30">
+                <!-- ================= TAB 3: PRODUCTS & INVENTORY ================= -->
+                <section id="tab-products" class="tab-content space-y-6 hidden">
+                    <!-- Form + Products List Layout -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
-                        <select id="prodCategory" required class="border border-gray-200 p-3 rounded-xl text-sm focus:outline-none focus:border-indigo-600 transition bg-white text-gray-600">
-                            <option value="">اختر القسم</option>
-                        </select>
+                        <!-- Product Add/Edit Form -->
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2 border-b border-slate-700/60 pb-3">
+                                <i class="fa-solid fa-circle-plus text-brand-400"></i>
+                                <span id="productFormTitle">إضافة منتج جديد</span>
+                            </h3>
 
-                        <!-- حقل رفع الصور من جهاز الكمبيوتر أو الهاتف -->
-                        <div class="md:col-span-2 border-2 border-dashed border-indigo-200 rounded-2xl p-6 bg-indigo-50/20 text-center hover:bg-indigo-50/40 transition">
-                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-500 mb-2"></i>
-                            <label class="block text-sm font-bold text-indigo-900 mb-1 cursor-pointer">
-                                اضغط هنا لرفع صورة المنتج من الهاتف أو الكمبيوتر
-                            </label>
-                            <p class="text-xs text-gray-400 mb-3">الصيغ المدعومة: JPG, PNG, WEBP</p>
-                            <input type="file" id="prodImageFile" accept="image/*" required class="block mx-auto text-xs text-gray-500 file:ml-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
-                        </div>
+                            <form id="productForm" onsubmit="handleSaveProduct(event)" class="space-y-3">
+                                <input type="hidden" id="editingProductId" value="">
 
-                        <textarea id="prodDesc" placeholder="وصف إضافي للمنتج (اختياري)" rows="2" class="border border-gray-200 p-3 rounded-xl text-sm md:col-span-2 focus:outline-none focus:border-indigo-600 transition bg-gray-50/30"></textarea>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">عنوان المنتج *</label>
+                                    <input type="text" id="pTitle" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                </div>
 
-                        <button type="submit" id="submitProdBtn" class="md:col-span-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl text-sm transition shadow-lg shadow-indigo-600/20">
-                            حفظ ونشر المنتج
-                        </button>
-                    </form>
-                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">السعر (ج.م) *</label>
+                                        <input type="number" id="pPrice" required step="0.01" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">سعر الشحن (ج.م)</label>
+                                        <input type="number" id="pShippingFee" value="0" step="0.01" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                    </div>
+                                </div>
 
-                <!-- قائمة المنتجات الحالية -->
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                    <h3 class="font-bold text-gray-800 text-sm mb-4">المنتجات المعروضة</h3>
-                    <div id="adminProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        <p class="col-span-full text-center text-gray-400 text-sm py-4">لا توجد منتجات مضافة بعد.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- C. قسم إدارة الأقسام -->
-            <section id="sec-categories" class="space-y-6 hidden">
-                <div>
-                    <h1 class="text-2xl font-black text-gray-900">إدارة الأقسام</h1>
-                    <p class="text-xs text-gray-500 mt-1">تصنيف المنتجات لسهولة الوصول إليها</p>
-                </div>
-
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm max-w-lg">
-                    <h3 class="font-bold text-gray-800 text-sm mb-4">إضافة تصنيف جديد</h3>
-                    <form onsubmit="handleAddCategory(event)" class="flex gap-2">
-                        <input type="text" id="catName" placeholder="اسم القسم (مثال: إلكترونيات، ملابس)" required class="border border-gray-200 p-3 rounded-xl text-sm flex-1 focus:outline-none focus:border-indigo-600 transition">
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition shadow-md shadow-indigo-600/20">
-                            إضافة
-                        </button>
-                    </form>
-
-                    <div class="mt-6 border-t border-gray-100 pt-4">
-                        <h4 class="text-xs font-bold text-gray-400 mb-3">الأقسام الحالية</h4>
-                        <ul id="adminCategoriesList" class="space-y-2">
-                            <li class="text-xs text-gray-400 py-2">لا توجد أقسام مسجلة.</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-    </div>
-
-    <!-- منطقة تجهيز الطباعة المخفية -->
-    <div id="printArea" class="hidden p-8 bg-white"></div>
-
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
-    <script>
-        // --- 1. دالة التبديل بين الأقسام المضمونة ---
-        function switchSection(secName) {
-            const sections = ['orders', 'products', 'categories'];
-
-            sections.forEach(s => {
-                const secEl = document.getElementById('sec-' + s);
-                const navEl = document.getElementById('nav-' + s);
-
-                if (s === secName) {
-                    secEl.classList.remove('hidden');
-                    navEl.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-indigo-600 text-white shadow-md shadow-indigo-600/20 transition-all";
-                } else {
-                    secEl.classList.add('hidden');
-                    navEl.className = "nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all";
-                }
-            });
-        }
-
-        // --- 2. إعدادات Firebase الخاصة بمشروعك ---
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-
-        let db = null;
-        let rawOrdersData = {};
-
-        // تهيئة الفايربيس بطريقة آمنة تماماً
-        try {
-            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-            } else {
-                document.getElementById('firebaseWarning').classList.remove('hidden');
-            }
-        } catch (e) {
-            console.warn("Firebase Init Exception:", e.message);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (db) {
-                fetchOrders();
-                fetchCategories();
-                fetchProducts();
-            }
-        });
-
-        // --- 3. إدارة البيانات والطلبات ---
-        function fetchOrders() {
-            if (!db) return;
-            db.ref('orders').on('value', (snapshot) => {
-                const tbody = document.getElementById('ordersTableBody');
-                tbody.innerHTML = '';
-                rawOrdersData = snapshot.val() || {};
-
-                if (!snapshot.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-400 font-semibold">لا توجد طلبات مسجلة.</td></tr>';
-                    document.getElementById('totalOrdersCount').innerText = '0';
-                    document.getElementById('totalSalesAmount').innerText = '0 ج.م';
-                    return;
-                }
-
-                let count = 0;
-                let totalSales = 0;
-
-                snapshot.forEach((child) => {
-                    const order = child.val();
-                    const key = child.key;
-                    count++;
-
-                    const shippingFee = Number(order.shippingFee || 0);
-                    const grandTotal = Number(order.totalAmount || 0) + shippingFee;
-                    totalSales += grandTotal;
-
-                    const itemsSummary = order.items ? order.items.map(i => `${i.title} (${i.qty})`).join(', ') : '-';
-                    const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : '-';
-
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-gray-50/50 transition">
-                            <td class="p-4"><input type="checkbox" class="order-checkbox rounded border-gray-300" value="${key}"></td>
-                            <td class="p-4 font-bold text-gray-900">${order.customer?.name || '-'}</td>
-                            <td class="p-4 text-gray-600">${order.customer?.phone || '-'}</td>
-                            <td class="p-4 text-gray-600">${order.customer?.address || '-'}</td>
-                            <td class="p-4 text-xs text-gray-500 max-w-xs truncate">${itemsSummary}</td>
-                            <td class="p-4 font-semibold text-gray-600">${shippingFee} ج.م</td>
-                            <td class="p-4 font-black text-indigo-600">${grandTotal} ج.م</td>
-                            <td class="p-4 text-xs text-gray-400">${dateStr}</td>
-                            <td class="p-4 text-center">
-                                <button onclick="deleteOrder('${key}')" class="text-red-500 hover:text-red-700 font-bold text-xs p-1">
-                                    <i class="fa-solid fa-trash-can"></i> حذف
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('totalOrdersCount').innerText = count;
-                document.getElementById('totalSalesAmount').innerText = totalSales.toLocaleString() + ' ج.م';
-            });
-        }
-
-        function toggleSelectAll(master) {
-            document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = master.checked);
-        }
-
-        // --- 4. رفع إضافة المنتجات والأقسام ---
-        function handleAddProduct(e) {
-            e.preventDefault();
-            if (!db) { alert('يرجى ضبط إعدادات Firebase الخاصة بك في الكود أولاً.'); return; }
-
-            const submitBtn = document.getElementById('submitProdBtn');
-            const fileInput = document.getElementById('prodImageFile');
-
-            if (fileInput.files.length === 0) {
-                alert('يرجى اختيار ملف الصو
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">القسم *</label>
+                                        <select id="pCategory" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                    
