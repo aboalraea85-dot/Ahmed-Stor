@@ -56,7 +56,7 @@
                     <h3 id="totalOrdersCount" class="text-3xl font-black text-indigo-600">0</h3>
                 </div>
                 <div class="bg-white p-5 rounded-xl shadow-sm border text-center">
-                    <p class="text-gray-500 font-semibold text-sm mb-1">إجمالي المبيعات</p>
+                    <p class="text-gray-500 font-semibold text-sm mb-1">إجمالي المبيعات (شامل الشحن)</p>
                     <h3 id="totalSalesAmount" class="text-3xl font-black text-emerald-600">0 ج.م</h3>
                 </div>
             </div>
@@ -77,14 +77,15 @@
                                 <th class="p-3">الهاتف</th>
                                 <th class="p-3">العنوان</th>
                                 <th class="p-3">تفاصيل المنتجات</th>
-                                <th class="p-3">الإجمالي</th>
+                                <th class="p-3">الشحن</th>
+                                <th class="p-3">الإجمالي الكلي</th>
                                 <th class="p-3">التاريخ</th>
                                 <th class="p-3">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody">
                             <tr>
-                                <td colspan="8" class="text-center py-6 text-gray-500">جاري تحميل البيانات...</td>
+                                <td colspan="9" class="text-center py-6 text-gray-500">جاري تحميل البيانات...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -99,12 +100,19 @@
                 <form id="addProductForm" onsubmit="handleAddProduct(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" id="prodTitle" placeholder="اسم المنتج" required class="border p-2 rounded-lg text-sm">
                     <input type="number" id="prodPrice" placeholder="السعر (ج.م)" required class="border p-2 rounded-lg text-sm">
+                    <input type="number" id="prodShipping" placeholder="مصاريف الشحن (ج.م)" value="0" class="border p-2 rounded-lg text-sm">
                     <select id="prodCategory" required class="border p-2 rounded-lg text-sm bg-white">
                         <!-- يتم التحميل تلقائياً من الفايربيس -->
                     </select>
-                    <input type="url" id="prodImage" placeholder="رابط صورة المنتج" class="border p-2 rounded-lg text-sm">
+                    
+                    <!-- رفع الصورة من الجهاز (كمبيوتر/تليفون) -->
+                    <div class="md:col-span-2 border p-3 rounded-lg bg-gray-50">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">اختر صورة المنتج من الجهاز:</label>
+                        <input type="file" id="prodImageFile" accept="image/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                    </div>
+
                     <textarea id="prodDesc" placeholder="وصف المنتج" class="border p-2 rounded-lg text-sm md:col-span-2" rows="2"></textarea>
-                    <button type="submit" class="bg-indigo-600 text-white font-bold py-2 rounded-lg md:col-span-2 hover:bg-indigo-700 transition">إضافة المنتج</button>
+                    <button type="submit" id="submitProdBtn" class="bg-indigo-600 text-white font-bold py-2 rounded-lg md:col-span-2 hover:bg-indigo-700 transition">إضافة المنتج</button>
                 </form>
             </div>
             <div id="adminProductsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
@@ -180,7 +188,7 @@
                 rawOrdersData = snapshot.val() || {};
 
                 if (!snapshot.exists()) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-gray-500">لا توجد طلبات مسجلة.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-6 text-gray-500">لا توجد طلبات مسجلة.</td></tr>';
                     document.getElementById('totalOrdersCount').innerText = '0';
                     document.getElementById('totalSalesAmount').innerText = '0 ج.م';
                     return;
@@ -193,7 +201,10 @@
                     const order = child.val();
                     const key = child.key;
                     count++;
-                    totalSales += Number(order.totalAmount || 0);
+                    
+                    const shippingFee = Number(order.shippingFee || 0);
+                    const grandTotal = Number(order.totalAmount || 0) + shippingFee;
+                    totalSales += grandTotal;
 
                     const itemsSummary = order.items ? order.items.map(i => `${i.title} (${i.qty})`).join(', ') : '';
                     const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('ar-EG') : '-';
@@ -205,7 +216,8 @@
                             <td class="p-3">${order.customer?.phone || '-'}</td>
                             <td class="p-3">${order.customer?.address || '-'}</td>
                             <td class="p-3 text-xs text-gray-600 max-w-xs">${itemsSummary}</td>
-                            <td class="p-3 font-bold text-indigo-600">${order.totalAmount || 0} ج.م</td>
+                            <td class="p-3 text-gray-600">${shippingFee} ج.م</td>
+                            <td class="p-3 font-bold text-indigo-600">${grandTotal} ج.م</td>
                             <td class="p-3 text-xs text-gray-500">${dateStr}</td>
                             <td class="p-3">
                                 <button onclick="deleteOrder('${key}')" class="text-red-500 hover:text-red-700 font-bold text-xs"><i class="fa-solid fa-trash"></i> حذف</button>
@@ -235,14 +247,18 @@
             Object.keys(rawOrdersData).forEach(key => {
                 const order = rawOrdersData[key];
                 const itemsStr = order.items ? order.items.map(i => `${i.title} [الكمية: ${i.qty}]`).join(' | ') : '';
-                
+                const shipping = Number(order.shippingFee || 0);
+                const total = Number(order.totalAmount || 0);
+
                 exportData.push({
                     "رقم الطلب": key,
                     "اسم العميل": order.customer?.name || '',
                     "رقم الهاتف": order.customer?.phone || '',
                     "العنوان": order.customer?.address || '',
                     "المنتجات": itemsStr,
-                    "الإجمالي (ج.م)": order.totalAmount || 0,
+                    "قيمة المنتجات (ج.م)": total,
+                    "الشحن (ج.م)": shipping,
+                    "الإجمالي الكلي (ج.م)": total + shipping,
                     "التاريخ": order.createdAt ? new Date(order.createdAt).toLocaleString('ar-EG') : ''
                 });
             });
@@ -273,9 +289,13 @@
                 let itemsHtml = '';
                 if(order.items) {
                     order.items.forEach(i => {
-                        itemsHtml += `<li style="display:flex; justify-between; border-bottom:1px solid #eee; padding:4px 0;"><span>${i.title} × ${i.qty}</span> <span>${i.price * i.qty} ج.م</span></li>`;
+                        itemsHtml += `<li style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding:4px 0;"><span>${i.title} × ${i.qty}</span> <span>${i.price * i.qty} ج.م</span></li>`;
                     });
                 }
+
+                const shipping = Number(order.shippingFee || 0);
+                const subtotal = Number(order.totalAmount || 0);
+                const grandTotal = subtotal + shipping;
 
                 printArea.innerHTML += `
                     <div style="border:2px solid #333; border-radius:8px; padding:15px; margin-bottom:20px; page-break-after: always;">
@@ -288,7 +308,10 @@
                         <p><strong>العنوان:</strong> ${order.customer?.address || '-'}</p>
                         <h4 style="margin-top:10px; font-weight:bold;">المنتجات:</h4>
                         <ul style="list-style:none; padding:0;">${itemsHtml}</ul>
-                        <p style="text-align:left; font-size:18px; font-weight:bold; margin-top:10px;">الإجمالي: ${order.totalAmount} ج.م</p>
+                        <hr style="margin:10px 0;">
+                        <p style="display:flex; justify-content:space-between; margin:2px 0;"><span>إجمالي المنتجات:</span> <span>${subtotal} ج.م</span></p>
+                        <p style="display:flex; justify-content:space-between; margin:2px 0;"><span>مصاريف الشحن:</span> <span>${shipping} ج.م</span></p>
+                        <p style="text-align:left; font-size:18px; font-weight:bold; margin-top:10px; border-top:2px dashed #333; padding-top:5px;">الإجمالي الكلي: ${grandTotal} ج.م</p>
                     </div>
                 `;
             });
@@ -296,6 +319,49 @@
             printArea.classList.remove('hidden');
             window.print();
             printArea.classList.add('hidden');
+        }
+
+        // --- إضافة المنتج ومعالجة رفع الصورة ---
+        function handleAddProduct(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('prodImageFile');
+            const submitBtn = document.getElementById('submitProdBtn');
+
+            if (fileInput.files.length === 0) {
+                alert('يرجى اختيار صورة للمنتج!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "جاري رفع الصورة والإضافة...";
+
+            reader.onload = function(event) {
+                const imageBase64 = event.target.result;
+
+                db.ref('products').push({
+                    title: document.getElementById('prodTitle').value,
+                    price: Number(document.getElementById('prodPrice').value),
+                    shippingFee: Number(document.getElementById('prodShipping').value || 0),
+                    category: document.getElementById('prodCategory').value,
+                    image: imageBase64, // حفظ الصورة كـ Base64
+                    description: document.getElementById('prodDesc').value
+                }).then(() => {
+                    e.target.reset();
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "إضافة المنتج";
+                    alert('تمت إضافة المنتج بنجاح!');
+                }).catch(err => {
+                    alert('حدث خطأ أثناء الإضافة: ' + err.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "إضافة المنتج";
+                });
+            };
+
+            reader.readAsDataURL(file); // تحويل صورة الهاتف/الكومبيوتر لـ Data URL
         }
 
         // إدارة المنتجات والأقسام
@@ -306,60 +372,4 @@
                 select.innerHTML = '';
                 list.innerHTML = '';
                 if (snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        const cat = child.val();
-                        select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
-                        list.innerHTML += `<li class="py-2 flex justify-between items-center text-sm"><span>${cat.name}</span><button onclick="deleteCategory('${child.key}')" class="text-red-500 text-xs">حذف</button></li>`;
-                    });
-                }
-            });
-        }
-
-        function fetchProducts() {
-            db.ref('products').on('value', snapshot => {
-                const grid = document.getElementById('adminProductsGrid');
-                grid.innerHTML = '';
-                if (snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        const p = child.val();
-                        grid.innerHTML += `
-                            <div class="bg-white p-3 rounded-lg border flex items-center justify-between shadow-sm">
-                                <div class="flex items-center gap-3">
-                                    <img src="${p.image || 'https://via.placeholder.com/80'}" class="w-12 h-12 rounded object-cover">
-                                    <div>
-                                        <h4 class="font-bold text-sm">${p.title}</h4>
-                                        <p class="text-xs text-gray-500">${p.price} ج.م - ${p.category}</p>
-                                    </div>
-                                </div>
-                                <button onclick="deleteProduct('${child.key}')" class="text-red-500 hover:text-red-700 text-sm"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        `;
-                    });
-                }
-            });
-        }
-
-        function handleAddProduct(e) {
-            e.preventDefault();
-            db.ref('products').push({
-                title: document.getElementById('prodTitle').value,
-                price: Number(document.getElementById('prodPrice').value),
-                category: document.getElementById('prodCategory').value,
-                image: document.getElementById('prodImage').value,
-                description: document.getElementById('prodDesc').value
-            }).then(() => e.target.reset());
-        }
-
-        function handleAddCategory(e) {
-            e.preventDefault();
-            const catName = document.getElementById('catName').value.trim();
-            if (catName) db.ref('categories').push({ name: catName }).then(() => e.target.reset());
-        }
-
-        function deleteOrder(key) { if(confirm('هل أنت تأكد من حذف الطلب؟')) db.ref('orders/' + key).remove(); }
-        function deleteProduct(key) { if(confirm('حذف المنتج؟')) db.ref('products/' + key).remove(); }
-        function deleteCategory(key) { if(confirm('حذف القسم؟')) db.ref('categories/' + key).remove(); }
-    </script>
-</body>
-    </html>
-    
+                    sn
