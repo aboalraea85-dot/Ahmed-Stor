@@ -60,39 +60,39 @@
                 <nav class="p-4 space-y-1.5 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">الرئيسية والإحصائيات</p>
                     
-                    <button type="button" onclick="switchTab('sec-dashboard', this, 'لوحة القيادة والتحليلات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all text-right">
+                    <button type="button" onclick="switchTab('sec-dashboard', this, 'لوحة القيادة والتحليلات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all text-right cursor-pointer">
                         <i class="fa-solid fa-chart-pie text-lg w-5"></i>
                         <span>لوحة القيادة والتحليلات</span>
                     </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إدارة المبيعات</p>
 
-                    <button type="button" onclick="switchTab('sec-orders', this, 'إدارة الطلبات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
+                    <button type="button" onclick="switchTab('sec-orders', this, 'إدارة الطلبات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right cursor-pointer">
                         <i class="fa-solid fa-boxes-packing text-lg w-5"></i>
                         <span class="flex-1 text-right">إدارة الطلبات</span>
                         <span id="badgeOrdersCount" class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">0</span>
                     </button>
 
-                    <button type="button" onclick="switchTab('sec-coupons', this, 'كوبونات الخصم')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
+                    <button type="button" onclick="switchTab('sec-coupons', this, 'كوبونات الخصم')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right cursor-pointer">
                         <i class="fa-solid fa-ticket text-lg w-5"></i>
                         <span>كوبونات الخصم</span>
                     </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">الكتالوج والمنتجات</p>
 
-                    <button type="button" onclick="switchTab('sec-products', this, 'إدارة المنتجات والمخزون')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
+                    <button type="button" onclick="switchTab('sec-products', this, 'إدارة المنتجات والمخزون')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right cursor-pointer">
                         <i class="fa-solid fa-box-archive text-lg w-5"></i>
                         <span>إدارة المنتجات والمخزون</span>
                     </button>
 
-                    <button type="button" onclick="switchTab('sec-categories', this, 'الأقسام والتصنيفات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
+                    <button type="button" onclick="switchTab('sec-categories', this, 'الأقسام والتصنيفات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right cursor-pointer">
                         <i class="fa-solid fa-layer-group text-lg w-5"></i>
                         <span>الأقسام والتصنيفات</span>
                     </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إعدادات النظام</p>
 
-                    <button type="button" onclick="switchTab('sec-settings', this, 'إعدادات المتجر والشحن')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
+                    <button type="button" onclick="switchTab('sec-settings', this, 'إعدادات المتجر والشحن')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right cursor-pointer">
                         <i class="fa-solid fa-sliders text-lg w-5"></i>
                         <span>إعدادات المتجر والشحن</span>
                     </button>
@@ -100,7 +100,7 @@
             </div>
 
             <div class="p-4 border-t border-slate-800/80">
-                <button type="button" onclick="exportExcelFile()" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                <button type="button" onclick="exportExcelFile()" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-file-excel text-base"></i>
                     <span>تصدير تقرير Excel</span>
                 </button>
@@ -113,7 +113,7 @@
             <!-- Top App Bar -->
             <header class="h-16 border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-4">
-                    <button type="button" onclick="toggleSidebarMobile()" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800/40">
+                    <button type="button" onclick="toggleSidebarMobile()" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800/40 cursor-pointer">
                         <i class="fa-solid fa-bars text-lg"></i>
                     </button>
                     <span id="currentTabTitle" class="font-black text-slate-200 text-base">لوحة القيادة والتحليلات</span>
@@ -274,6 +274,4 @@
                                     <input type="text" id="categoryNameInput" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
                                 <button type="button" onclick="addNewCategory()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">حفظ القسم</button>
-                            </div>
-                        </div>
-                        <div class="bg-slate-800/60 border bor
+        
