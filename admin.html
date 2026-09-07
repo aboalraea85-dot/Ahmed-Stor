@@ -33,13 +33,7 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         .tab-section { display: none; }
-        :target { display: block !important; }
-        #sec-dashboard { display: block; }
-        body:has(#sec-orders:target) #sec-dashboard,
-        body:has(#sec-coupons:target) #sec-dashboard,
-        body:has(#sec-products:target) #sec-dashboard,
-        body:has(#sec-categories:target) #sec-dashboard,
-        body:has(#sec-settings:target) #sec-dashboard { display: none; }
+        .tab-section.active { display: block; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-cairo antialiased selection:bg-brand-500 selection:text-white">
@@ -66,42 +60,42 @@
                 <nav class="p-4 space-y-1.5 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">الرئيسية والإحصائيات</p>
                     
-                    <a href="#sec-dashboard" onclick="updateActiveNav(this, 'لوحة القيادة والتحليلات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all">
+                    <button type="button" onclick="switchTab('sec-dashboard', this, 'لوحة القيادة والتحليلات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all text-right">
                         <i class="fa-solid fa-chart-pie text-lg w-5"></i>
                         <span>لوحة القيادة والتحليلات</span>
-                    </a>
+                    </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إدارة المبيعات</p>
 
-                    <a href="#sec-orders" onclick="updateActiveNav(this, 'إدارة الطلبات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button type="button" onclick="switchTab('sec-orders', this, 'إدارة الطلبات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
                         <i class="fa-solid fa-boxes-packing text-lg w-5"></i>
                         <span class="flex-1 text-right">إدارة الطلبات</span>
                         <span id="badgeOrdersCount" class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">0</span>
-                    </a>
+                    </button>
 
-                    <a href="#sec-coupons" onclick="updateActiveNav(this, 'كوبونات الخصم')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button type="button" onclick="switchTab('sec-coupons', this, 'كوبونات الخصم')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
                         <i class="fa-solid fa-ticket text-lg w-5"></i>
                         <span>كوبونات الخصم</span>
-                    </a>
+                    </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">الكتالوج والمنتجات</p>
 
-                    <a href="#sec-products" onclick="updateActiveNav(this, 'إدارة المنتجات والمخزون')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button type="button" onclick="switchTab('sec-products', this, 'إدارة المنتجات والمخزون')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
                         <i class="fa-solid fa-box-archive text-lg w-5"></i>
                         <span>إدارة المنتجات والمخزون</span>
-                    </a>
+                    </button>
 
-                    <a href="#sec-categories" onclick="updateActiveNav(this, 'الأقسام والتصنيفات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button type="button" onclick="switchTab('sec-categories', this, 'الأقسام والتصنيفات')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
                         <i class="fa-solid fa-layer-group text-lg w-5"></i>
                         <span>الأقسام والتصنيفات</span>
-                    </a>
+                    </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إعدادات النظام</p>
 
-                    <a href="#sec-settings" onclick="updateActiveNav(this, 'إعدادات المتجر والشحن')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button type="button" onclick="switchTab('sec-settings', this, 'إعدادات المتجر والشحن')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all text-right">
                         <i class="fa-solid fa-sliders text-lg w-5"></i>
                         <span>إعدادات المتجر والشحن</span>
-                    </a>
+                    </button>
                 </nav>
             </div>
 
@@ -137,7 +131,7 @@
             <main class="flex-1 p-6 overflow-y-auto custom-scrollbar">
 
                 <!-- ================= TAB 1: DASHBOARD ================= -->
-                <section id="sec-dashboard" class="tab-section space-y-6">
+                <section id="sec-dashboard" class="tab-section active space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
                             <p class="text-xs font-bold text-slate-400">إجمالي المبيعات والأرباح</p>
@@ -199,7 +193,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">نسبة الخصم (%)</label>
                                     <input type="number" id="couponDiscountInput" placeholder="مثال: 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button type="button" onclick="addNewCoupon()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الكوبون</button>
+                                <button type="button" onclick="addNewCoupon()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">حفظ الكوبون</button>
                             </div>
                         </div>
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
@@ -242,7 +236,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">صورة المنتج (من الاستوديو)</label>
                                     <input type="file" id="productImageFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer bg-slate-900 border border-slate-700 rounded-xl">
                                 </div>
-                                <button type="button" onclick="addNewProduct()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30">حفظ وإضافة المنتج</button>
+                                <button type="button" onclick="addNewProduct()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30 cursor-pointer">حفظ وإضافة المنتج</button>
                             </div>
                         </div>
                         
@@ -279,4 +273,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">اسم القسم</label>
                                     <input type="text" id="categoryNameInput" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button type="button" onclick="addNewCategory()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ القسم
+                                <button type="button" onclick="addNewCategory()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">حفظ القسم</button>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/60 border bor
