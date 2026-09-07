@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم الفائقة - AhmedStor Super Admin</title>
+    <title>لوحة التحكم الشاملة - AhmedStor Pro</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Cairo Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Chart.js for Advanced Analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -96,6 +96,13 @@
                     </button>
                 </nav>
             </div>
+
+            <div class="p-4 border-t border-slate-800/80">
+                <button id="btnExportExcel" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-excel text-base"></i>
+                    <span>تصدير تقرير Excel</span>
+                </button>
+            </div>
         </aside>
 
         <!-- ==================== 2. MAIN CONTENT AREA ==================== -->
@@ -157,11 +164,12 @@
                                         <th class="p-4">بيانات العميل</th>
                                         <th class="p-4">إجمالي المبلغ</th>
                                         <th class="p-4">حالة الطلب</th>
+                                        <th class="p-4">إجراء</th>
                                     </tr>
                                 </thead>
                                 <tbody id="ordersTableBody" class="divide-y divide-slate-700/40 text-slate-300">
                                     <tr>
-                                        <td colspan="4" class="p-6 text-center text-slate-500">لا توجد طلبات جديدة حالياً</td>
+                                        <td colspan="5" class="p-6 text-center text-slate-500">لا توجد طلبات مسجلة حالياً</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -171,23 +179,44 @@
 
                 <!-- ================= TAB 3: COUPONS ================= -->
                 <section id="tab-coupons" class="tab-content space-y-6 hidden">
-                    <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl max-w-xl space-y-4">
-                        <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إدارة كوبونات الخصم</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">كود الخصم</label>
-                                <input type="text" placeholder="مثال: SAVE20" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إضافة كوبون خصم جديد</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">كود الخصم</label>
+                                    <input type="text" id="couponCodeInput" placeholder="مثال: SAVE20" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">نسبة الخصم (%)</label>
+                                    <input type="number" id="couponDiscountInput" placeholder="مثال: 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                                </div>
+                                <button id="btnAddCoupon" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الكوبون</button>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">نسبة الخصم (%)</label>
-                                <input type="number" placeholder="مثال: 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200">
+                        </div>
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
+                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3 mb-4">قائمة الكوبونات النشطة</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-xs">
+                                    <thead class="bg-slate-950 text-slate-400 font-bold border-b border-slate-700/60">
+                                        <tr>
+                                            <th class="p-3">الكود</th>
+                                            <th class="p-3">النسبة</th>
+                                            <th class="p-3">إجراء</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="couponsTableBody" class="divide-y divide-slate-700/40 text-slate-300">
+                                        <tr>
+                                            <td colspan="3" class="p-4 text-center text-slate-500">لا توجد كوبونات مضافة</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <button class="w-full bg-brand-600 text-white font-bold py-2.5 rounded-xl text-xs">حفظ وإضافة الكوبون</button>
                         </div>
                     </div>
                 </section>
 
-                <!-- ================= TAB 4: PRODUCTS ================= -->
+                <!-- ================= TAB 4: PRODUCTS (رفع مباشر من التليفون وتفعيل الزر) ================= -->
                 <section id="tab-products" class="tab-content space-y-6 hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
@@ -195,98 +224,60 @@
                             <div class="space-y-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-400 mb-1">اسم المنتج</label>
-                                    <input type="text" placeholder="اسم المنتج..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200">
+                                    <input type="text" id="productName" placeholder="اسم المنتج..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-400 mb-1">السعر (ج.م)</label>
-                                    <input type="number" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200">
+                                    <input type="number" id="productPrice" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button class="w-full bg-brand-600 text-white font-bold py-2.5 rounded-xl text-xs">إضافة المنتج</button>
+                                <!-- رفع الصورة مباشرة من التليفون -->
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">صورة المنتج (من الاستوديو)</label>
+                                    <input type="file" id="productImageFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer bg-slate-900 border border-slate-700 rounded-xl">
+                                </div>
+                                <button id="btnAddProduct" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30">حفظ وإضافة المنتج</button>
                             </div>
                         </div>
+                        
                         <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
-                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3 mb-4">قائمة المنتجات</h3>
-                            <div class="text-center text-slate-500 py-8">لا توجد منتجات مسجلة</div>
+                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3 mb-4">قائمة المنتجات المسجلة</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-xs">
+                                    <thead class="bg-slate-950 text-slate-400 font-bold border-b border-slate-700/60">
+                                        <tr>
+                                            <th class="p-3">الصورة</th>
+                                            <th class="p-3">اسم المنتج</th>
+                                            <th class="p-3">السعر</th>
+                                            <th class="p-3">إجراء</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productsTableBody" class="divide-y divide-slate-700/40 text-slate-300">
+                                        <tr>
+                                            <td colspan="4" class="p-6 text-center text-slate-500">لا توجد منتجات مسجلة حالياً</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- ================= TAB 5: CATEGORIES ================= -->
                 <section id="tab-categories" class="tab-content space-y-6 hidden">
-                    <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl max-w-xl space-y-4">
-                        <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إدارة الأقسام والتصنيفات</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">اسم القسم الجديد</label>
-                                <input type="text" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إضافة قسم جديد</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">اسم القسم</label>
+                                    <input type="text" id="categoryNameInput" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                                </div>
+                                <button id="btnAddCategory" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ القسم</button>
                             </div>
-                            <button class="w-full bg-brand-600 text-white font-bold py-2.5 rounded-xl text-xs">حفظ القسم</button>
                         </div>
-                    </div>
-                </section>
-
-                <!-- ================= TAB 6: SETTINGS ================= -->
-                <section id="tab-settings" class="tab-content space-y-6 hidden">
-                    <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl max-w-xl space-y-4">
-                        <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إعدادات المتجر</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-400 mb-1">اسم المتجر</label>
-                                <input type="text" value="AhmedStor Pro" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200">
-                            </div>
-                            <button class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">حفظ التغييرات</button>
-                        </div>
-                    </div>
-                </section>
-
-            </main>
-        </div>
-    </div>
-
-    <!-- JavaScript الخاص بالتنقل بين الأقسام الستة بكفاءة -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const navItems = document.querySelectorAll(".nav-item");
-            const tabContents = document.querySelectorAll(".tab-content");
-            const currentTabTitle = document.getElementById("currentTabTitle");
-
-            navItems.forEach(item => {
-                item.addEventListener("click", () => {
-                    const targetTab = item.getAttribute("data-tab");
-                    if (!targetTab) return;
-
-                    navItems.forEach(nav => {
-                        nav.classList.remove("bg-brand-600", "text-white", "shadow-lg", "shadow-brand-600/25");
-                        nav.classList.add("text-slate-400", "hover:text-white", "hover:bg-slate-800/60");
-                    });
-
-                    item.classList.add("bg-brand-600", "text-white", "shadow-lg", "shadow-brand-600/25");
-                    item.classList.remove("text-slate-400", "hover:text-white", "hover:bg-slate-800/60");
-
-                    tabContents.forEach(tab => {
-                        tab.classList.add("hidden");
-                    });
-
-                    const activeSection = document.getElementById(`tab-${targetTab}`);
-                    if (activeSection) {
-                        activeSection.classList.remove("hidden");
-                    }
-
-                    if (currentTabTitle) {
-                        currentTabTitle.textContent = item.querySelector("span") ? item.querySelector("span").textContent : "لوحة التحكم";
-                    }
-                });
-            });
-
-            const btnToggleSidebar = document.getElementById("btnToggleSidebar");
-            const sidebar = document.getElementById("sidebar");
-            if (btnToggleSidebar && sidebar) {
-                btnToggleSidebar.addEventListener("click", () => {
-                    sidebar.classList.toggle("hidden");
-                });
-            }
-        });
-    </script>
-</body>
-    </html>
-    
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
+                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3 mb-4">الأقسام الحالية</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-xs">
+                                    <thead class="bg-slate-950 text-slate-400 font-bold border-b border-slate-700/60">
+ 
