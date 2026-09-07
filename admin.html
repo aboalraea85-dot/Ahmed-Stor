@@ -32,10 +32,8 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        /* إخفاء التابات غير المكتشفة واظهار النشطة بناءً على الـ Hash مباشرة */
         .tab-section { display: none; }
         :target { display: block !important; }
-        /* افتراضياً لو مفيش هاش يظهر الداشبورد */
         #sec-dashboard { display: block; }
         body:has(#sec-orders:target) #sec-dashboard,
         body:has(#sec-coupons:target) #sec-dashboard,
@@ -64,7 +62,7 @@
                     </div>
                 </div>
 
-                <!-- Navigation Links ( باستخدام الروابط المباشرة لضمان عدم التعطيل نهائياً ) -->
+                <!-- Navigation Links -->
                 <nav class="p-4 space-y-1.5 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">الرئيسية والإحصائيات</p>
                     
@@ -201,7 +199,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">نسبة الخصم (%)</label>
                                     <input type="number" id="couponDiscountInput" placeholder="مثال: 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button id="btnAddCoupon" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الكوبون</button>
+                                <button type="button" id="btnAddCoupon" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الكوبون</button>
                             </div>
                         </div>
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
@@ -244,7 +242,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">صورة المنتج (من الاستوديو)</label>
                                     <input type="file" id="productImageFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer bg-slate-900 border border-slate-700 rounded-xl">
                                 </div>
-                                <button id="btnAddProduct" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30">حفظ وإضافة المنتج</button>
+                                <button type="button" id="btnAddProduct" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30">حفظ وإضافة المنتج</button>
                             </div>
                         </div>
                         
@@ -281,4 +279,6 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">اسم القسم</label>
                                     <input type="text" id="categoryNameInput" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button id="btnAddCategory" class="w-full bg-brand-600 hover:bg
+                                <button type="button" id="btnAddCategory" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ القسم</button>
+                            </div>
+                      
