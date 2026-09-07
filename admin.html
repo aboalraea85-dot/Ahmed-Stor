@@ -106,7 +106,7 @@
             </div>
 
             <div class="p-4 border-t border-slate-800/80">
-                <button id="btnExportExcel" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                <button type="button" onclick="exportExcelFile()" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-excel text-base"></i>
                     <span>تصدير تقرير Excel</span>
                 </button>
@@ -119,7 +119,7 @@
             <!-- Top App Bar -->
             <header class="h-16 border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-4">
-                    <button id="btnToggleSidebar" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800/40">
+                    <button type="button" onclick="toggleSidebarMobile()" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800/40">
                         <i class="fa-solid fa-bars text-lg"></i>
                     </button>
                     <span id="currentTabTitle" class="font-black text-slate-200 text-base">لوحة القيادة والتحليلات</span>
@@ -199,7 +199,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">نسبة الخصم (%)</label>
                                     <input type="number" id="couponDiscountInput" placeholder="مثال: 15" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button type="button" id="btnAddCoupon" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الكوبون</button>
+                                <button type="button" onclick="addNewCoupon()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ الكوبون</button>
                             </div>
                         </div>
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
@@ -242,7 +242,7 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">صورة المنتج (من الاستوديو)</label>
                                     <input type="file" id="productImageFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer bg-slate-900 border border-slate-700 rounded-xl">
                                 </div>
-                                <button type="button" id="btnAddProduct" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30">حفظ وإضافة المنتج</button>
+                                <button type="button" onclick="addNewProduct()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/30">حفظ وإضافة المنتج</button>
                             </div>
                         </div>
                         
@@ -279,6 +279,4 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">اسم القسم</label>
                                     <input type="text" id="categoryNameInput" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <button type="button" id="btnAddCategory" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ القسم</button>
-                            </div>
-                      
+                                <button type="button" onclick="addNewCategory()" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl text-xs transition">حفظ القسم
