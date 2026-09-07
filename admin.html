@@ -13,9 +13,35 @@
     <!-- SheetJS for Excel Export -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
-    <!-- Firebase SDKs (CDN Version مناسب لملفات الـ HTML العادية) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <!-- ربط Firebase بطريقة Modular الحديثة الآمنة عبر ES Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpxlOYiDx1nHyvkQpRMrnFD83KeKQbpUk",
+            authDomain: "guevara-stor.firebaseapp.com",
+            databaseURL: "https://guevara-stor-default-rtdb.firebaseio.com",
+            projectId: "guevara-stor",
+            storageBucket: "guevara-stor.firebasestorage.app",
+            messagingSenderId: "931509510252",
+            appId: "1:931509510252:web:3b02b68c375d16aa863849",
+            measurementId: "G-PR371CFS2R"
+        };
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            window.db = getDatabase(app);
+            console.log("Firebase initialized successfully via ES Modules");
+            const statusEl = document.getElementById('firebaseStatus');
+            if(statusEl) {
+                statusEl.textContent = "متصل بقاعدة البيانات بنجاح";
+                statusEl.parentElement.className = "flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full";
+            }
+        } catch (error) {
+            console.error("Firebase init error:", error);
+        }
+    </script>
 
     <script>
         tailwind.config = {
@@ -124,9 +150,9 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="firebaseStatus" class="text-xs font-bold text-emerald-400">متصل بقاعدة البيانات</span>
+                    <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span id="firebaseStatus" class="text-xs font-bold text-amber-400">جاري الاتصال بقاعدة البيانات...</span>
                     </div>
                 </div>
             </header>
@@ -258,21 +284,4 @@
                                     </thead>
                                     <tbody id="productsTableBody" class="divide-y divide-slate-700/40 text-slate-300">
                                         <tr>
-                                            <td colspan="4" class="p-6 text-center text-slate-500">لا توجد منتجات مسجلة حالياً</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- ================= TAB 5: CATEGORIES ================= -->
-                <section id="sec-categories" class="tab-section space-y-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
-                            <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إضافة قسم جديد</h3>
-                            <div class="space-y-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-400 mb-1">اسم القسم</label>
-                                    <input type="text" id="categoryNameInput" placeholder="اكتب اسم القسم..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:b
+                                            <td colspan="4" class="p-6 text-center text-slate
