@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AhmedStor - المتجر الرئيسي</title>
+    <title>لوحة التحكم الفائقة - AhmedStor Super Admin</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Cairo Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chart.js for Advanced Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS for Advanced Excel Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -17,7 +22,7 @@
                     fontFamily: { cairo: ['Cairo', 'sans-serif'] },
                     colors: {
                         brand: {
-                            50: '#f0f3ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81'
+                            50: '#f0f3ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81'
                         }
                     }
                 }
@@ -26,345 +31,241 @@
     </script>
     <style>
         body { font-family: 'Cairo', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col justify-between antialiased">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-cairo antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- ==================== HEADER & NAVBAR ==================== -->
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo -->
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-                    <i class="fa-solid fa-store text-xl"></i>
-                </div>
-                <div>
-                    <h1 id="storeBrandName" class="font-black text-xl tracking-wide text-slate-900">AhmedStor</h1>
-                    <p class="text-[11px] font-bold text-brand-600">تسوق أحدث المنتجات بأفضل الأسعار</p>
-                </div>
-            </div>
+    <div class="flex h-screen overflow-hidden">
 
-            <!-- Search & Actions -->
-            <div class="flex items-center gap-3">
-                <!-- Cart Button -->
-                <button onclick="toggleCartModal(true)" class="relative bg-brand-50 hover:bg-brand-100 text-brand-600 p-3 rounded-2xl font-bold flex items-center gap-2 transition border border-brand-200">
-                    <i class="fa-solid fa-cart-shopping text-lg"></i>
-                    <span class="hidden sm:inline text-xs">سلة المشتريات</span>
-                    <span id="cartBadge" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-md">0</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- ==================== HERO SECTION ==================== -->
-    <section class="bg-gradient-to-r from-brand-900 via-brand-700 to-indigo-800 text-white py-16 px-4 mb-8">
-        <div class="max-w-7xl mx-auto text-center space-y-4">
-            <span class="bg-white/10 border border-white/20 text-white text-xs font-bold px-4 py-1.5 rounded-full inline-block">عروض حصرية لفترة محدودة 🔥</span>
-            <h2 class="text-3xl sm:text-5xl font-black tracking-tight">اكتشف أفضل المنتجات المتاحة الآن</h2>
-            <p class="text-slate-200 text-sm sm:text-base max-w-xl mx-auto">تصفح أقسام المتجر، اختر ما يناسبك، وأتمم طلبك بكل سهولة ويسر مع خدمة توصيل سريعة.</p>
-        </div>
-    </section>
-
-    <!-- ==================== MAIN CATALOG ==================== -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 w-full pb-16 space-y-8">
-        
-        <!-- Filter Categories Bar -->
-        <div id="categoriesFilterBar" class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
-            <button onclick="filterByCategory('ALL')" class="cat-btn bg-brand-600 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shrink-0 shadow-md shadow-brand-600/20 transition">الكل</button>
-            <!-- Dynamic Category Buttons -->
-        </div>
-
-        <!-- Products Grid -->
-        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Dynamic Products Loading -->
-        </div>
-
-    </main>
-
-    <!-- ==================== CART SLIDE OVER MODAL ==================== -->
-    <div id="cartModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex justify-end transition-all">
-        <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between p-6 overflow-y-auto">
+        <!-- ==================== 1. SIDEBAR (القائمة الجانبية) ==================== -->
+        <aside id="sidebar" class="w-72 bg-slate-950 border-l border-slate-800/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-30">
             <div>
-                <!-- Header -->
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <h3 class="font-black text-lg text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-bag-shopping text-brand-600"></i> سلة المشتريات
-                    </h3>
-                    <button onclick="toggleCartModal(false)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
-                        <i class="fa-solid fa-xmark"></i>
+                <!-- Brand Header -->
+                <div class="p-5 border-b border-slate-800/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                            <i class="fa-solid fa-shield-halved text-2xl text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-black text-lg tracking-wide bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">AhmedStor Pro</h2>
+                            <p class="text-[11px] font-semibold text-brand-400">الإصدار الشامل v3.0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="p-4 space-y-1.5 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">الرئيسية والإحصائيات</p>
+                    
+                    <button id="nav-dashboard" data-tab="dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all">
+                        <i class="fa-solid fa-chart-pie text-lg w-5"></i>
+                        <span>لوحة القيادة والتحليلات</span>
                     </button>
-                </div>
 
-                <!-- Cart Items Container -->
-                <div id="cartItemsContainer" class="divide-y divide-slate-100 my-4 space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
-                    <!-- Dynamic Cart Items -->
-                </div>
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إدارة المبيعات</p>
 
-                <!-- Coupon Section -->
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 my-4 space-y-2">
-                    <div class="flex gap-2">
-                        <input type="text" id="couponInput" placeholder="أدخل كود الخصم (مثل SAVE20)" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs uppercase focus:outline-none focus:border-brand-500 font-bold">
-                        <button onclick="applyCoupon()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs transition">تطبيق</button>
-                    </div>
-                    <p id="couponMsg" class="text-[11px] font-bold text-emerald-600 hidden"></p>
-                </div>
+                    <button id="nav-orders" data-tab="orders" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-boxes-packing text-lg w-5"></i>
+                        <span class="flex-1 text-right">إدارة الطلبات</span>
+                        <span id="badgeOrdersCount" class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">0</span>
+                    </button>
 
-                <!-- Checkout Form Details -->
-                <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-3 pt-2 border-t border-slate-100">
-                    <h4 class="font-bold text-xs text-slate-500 uppercase">بيانات الشحن والتوصيل</h4>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 mb-1">الاسم الكامل *</label>
-                        <input type="text" id="custName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 mb-1">رقم الهاتف المحمول *</label>
-                        <input type="tel" id="custPhone" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 mb-1">العنوان بالتفصيل (المدينة، الشارع، رقم الحارة) *</label>
-                        <textarea id="custAddress" rows="2" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:outline-none focus:border-brand-500"></textarea>
-                    </div>
-                </form>
+                    <button id="nav-coupons" data-tab="coupons" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-ticket text-lg w-5"></i>
+                        <span>كوبونات الخصم</span>
+                    </button>
+
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">الكتالوج والمنتجات</p>
+
+                    <button id="nav-products" data-tab="products" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-box-archive text-lg w-5"></i>
+                        <span>إدارة المنتجات والمخزون</span>
+                    </button>
+
+                    <button id="nav-categories" data-tab="categories" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-layer-group text-lg w-5"></i>
+                        <span>الأقسام والتصنيفات</span>
+                    </button>
+
+                    <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إعدادات النظام</p>
+
+                    <button id="nav-settings" data-tab="settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                        <i class="fa-solid fa-sliders text-lg w-5"></i>
+                        <span>إعدادات المتجر والشحن</span>
+                    </button>
+                </nav>
             </div>
 
-            <!-- Footer Summary & Checkout Button -->
-            <div class="border-t border-slate-100 pt-4 space-y-3">
-                <div class="space-y-1 text-xs font-bold text-slate-600">
-                    <div class="flex justify-between"><span>إجمالي المنتجات:</span> <span id="cartSubtotal">0 ج.م</span></div>
-                    <div class="flex justify-between"><span>مصاريف الشحن:</span> <span id="cartShippingFee">50 ج.م</span></div>
-                    <div id="discountRow" class="flex justify-between text-emerald-600 hidden"><span>الخصم المطبق:</span> <span id="cartDiscountVal">-0 ج.م</span></div>
-                    <div class="flex justify-between text-base font-black text-slate-900 border-t border-slate-200 pt-2"><span>الإجمالي الكلي:</span> <span id="cartGrandTotal" class="text-brand-600">0 ج.م</span></div>
-                </div>
-                <button type="button" onclick="document.getElementById('checkoutForm').requestSubmit()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-3 rounded-2xl text-xs transition shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-circle-check text-sm"></i>
-                    <span>إتمام وتأكيد الطلب الآن</span>
+            <!-- Quick Actions Footer -->
+            <div class="p-4 border-t border-slate-800/80 bg-slate-950/50">
+                <button id="btnExportExcel" class="w-full bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-file-excel text-base"></i>
+                    <span>تصدير تقرير شامل Excel</span>
                 </button>
             </div>
-        </div>
-    </div>
+        </aside>
 
-    <!-- ==================== FOOTER ==================== -->
-    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800 text-center text-xs">
-        <p>© 2026 <span id="footerStoreName" class="text-white font-bold">AhmedStor</span>. جميع الحقوق محفوظة.</p>
-    </footer>
+        <!-- ==================== 2. MAIN CONTENT AREA ==================== -->
+        <div class="flex-1 flex flex-col h-screen overflow-hidden bg-slate-900">
+            
+            <!-- Top App Bar -->
+            <header class="h-16 border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md px-6 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-4">
+                    <button id="btnToggleSidebar" class="text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800/40">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <span id="currentTabTitle" class="font-black text-slate-200 text-base">لوحة القيادة والتحليلات</span>
+                </div>
 
-    <!-- Firebase SDK (v8) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="text-xs font-bold text-emerald-400">متصل بقاعدة البيانات</span>
+                    </div>
+                </div>
+            </header>
 
-    <script>
-        // ==================== FIREBASE CONFIGURATION ====================
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+            <!-- Main Dynamic Container -->
+            <main class="flex-1 p-6 overflow-y-auto custom-scrollbar">
 
-        let db = null;
-        let remoteData = {
-            products: {},
-            categories: {},
-            coupons: {},
-            settings: { storeName: "AhmedStor", defaultShipping: 50, freeShippingLimit: 1000 }
-        };
-
-        let cart = [];
-        let activeCategory = 'ALL';
-        let appliedDiscountPercent = 0;
-
-        try {
-            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
-                if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-            }
-        } catch (e) {
-            console.warn("Firebase Init Error:", e);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (db) {
-                db.ref().on('value', snapshot => {
-                    const val = snapshot.val() || {};
-                    remoteData.products = val.products || {};
-                    remoteData.categories = val.categories || {};
-                    remoteData.coupons = val.coupons || {};
-                    remoteData.settings = val.settings || remoteData.settings;
-                    updateUIFromData();
-                });
-            } else {
-                // Fallback to LocalStorage data simulation if Firebase is unlinked
-                const local = localStorage.getItem('ahmedstor_admin_data');
-                if (local) {
-                    try {
-                        const parsed = JSON.parse(local);
-                        remoteData.products = parsed.products || {};
-                        remoteData.categories = parsed.categories || {};
-                        remoteData.coupons = parsed.coupons || {};
-                        remoteData.settings = parsed.settings || remoteData.settings;
-                    } catch(e) {}
-                }
-                updateUIFromData();
-            }
-        });
-
-        function updateUIFromData() {
-            const storeName = remoteData.settings.storeName || "AhmedStor";
-            document.getElementById('storeBrandName').innerText = storeName;
-            document.getElementById('footerStoreName').innerText = storeName;
-            document.title = storeName + " - المتجر الرئيسي";
-
-            renderCategoriesBar();
-            renderProductsGrid();
-        }
-
-        function renderCategoriesBar() {
-            const bar = document.getElementById('categoriesFilterBar');
-            bar.innerHTML = `<button onclick="filterByCategory('ALL')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${activeCategory === 'ALL' ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">الكل</button>`;
-
-            Object.values(remoteData.categories || {}).forEach(c => {
-                const isActive = activeCategory === c.name;
-                bar.innerHTML += `<button onclick="filterByCategory('${c.name}')" class="cat-btn px-5 py-2.5 rounded-2xl text-xs font-bold shrink-0 transition ${isActive ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">${c.name}</button>`;
-            });
-        }
-
-        function filterByCategory(catName) {
-            activeCategory = catName;
-            renderCategoriesBar();
-            renderProductsGrid();
-        }
-
-        function renderProductsGrid() {
-            const grid = document.getElementById('productsGrid');
-            grid.innerHTML = '';
-
-            const keys = Object.keys(remoteData.products || {});
-            const filteredKeys = keys.filter(k => {
-                const p = remoteData.products[k];
-                if (activeCategory === 'ALL') return true;
-                return p.category === activeCategory;
-            });
-
-            if (filteredKeys.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-16 text-slate-400 font-bold">لا توجد منتجات متاحة في هذا القسم حالياً.</div>`;
-                return;
-            }
-
-            filteredKeys.forEach(key => {
-                const p = remoteData.products[key];
-                const img = (p.images && p.images.length > 0) ? p.images[0] : (p.image || 'https://via.placeholder.com/300');
-
-                grid.innerHTML += `
-                    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 flex flex-col justify-between shadow-sm hover:shadow-xl transition-all group">
-                        <div>
-                            <div class="relative w-full h-48 rounded-2xl overflow-hidden bg-slate-100 mb-4">
-                                <img src="${img}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                                <span class="absolute top-3 right-3 bg-white/90 backdrop-blur-md text-brand-600 font-bold text-[10px] px-2.5 py-1 rounded-full shadow">${p.category || 'عام'}</span>
-                            </div>
-                            <h3 class="font-bold text-sm text-slate-800 line-clamp-1 mb-1">${p.title}</h3>
-                            <p class="text-xs text-slate-500 line-clamp-2 mb-3">${p.description || 'لا يوجد وصف متاح.'}</p>
+                <!-- ================= TAB 1: DASHBOARD ================= -->
+                <section id="tab-dashboard" class="tab-content space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">إجمالي المبيعات والأرباح</p>
+                            <h3 id="statTotalSales" class="text-2xl font-black text-emerald-400 mt-2">0 ج.م</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg"><i class="fa-solid fa-wallet"></i></div>
                         </div>
-                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
-                            <div>
-                                <span class="text-[10px] text-slate-400 block">السعر</span>
-                                <span class="font-black text-brand-600 text-base">${p.price} ج.م</span>
-                            </div>
-                            <button onclick="addToCart('${key}')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md shadow-brand-600/20 flex items-center gap-1.5">
-                                <i class="fa-solid fa-cart-plus"></i> أضف للسلة
-                            </button>
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">إجمالي الطلبات</p>
+                            <h3 id="statTotalOrders" class="text-2xl font-black text-brand-400 mt-2">0</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center text-lg"><i class="fa-solid fa-cart-flatbed"></i></div>
+                        </div>
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">عدد المنتجات النشطة</p>
+                            <h3 id="statTotalProducts" class="text-2xl font-black text-sky-400 mt-2">0</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-lg"><i class="fa-solid fa-boxes-stacked"></i></div>
+                        </div>
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
+                            <p class="text-xs font-bold text-slate-400">متوسط قيمة الطلب</p>
+                            <h3 id="statAvgOrder" class="text-2xl font-black text-amber-400 mt-2">0 ج.م</h3>
+                            <div class="absolute top-4 left-4 w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg"><i class="fa-solid fa-chart-line"></i></div>
                         </div>
                     </div>
-                `;
-            });
-        }
 
-        // ==================== CART MANAGEMENT ====================
-        function toggleCartModal(open) {
-            const modal = document.getElementById('cartModal');
-            if (open) {
-                modal.classList.remove('hidden');
-                renderCartModal();
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function addToCart(productKey) {
-            const product = remoteData.products[productKey];
-            if (!product) return;
-
-            const existing = cart.find(item => item.key === productKey);
-            if (existing) {
-                existing.qty++;
-            } else {
-                cart.push({
-                    key: productKey,
-                    title: product.title,
-                    price: Number(product.price),
-                    shippingFee: Number(product.shippingFee || 0),
-                    qty: 1,
-                    image: (product.images && product.images.length > 0) ? product.images[0] : (product.image || '')
-                });
-            }
-
-            updateCartBadge();
-            alert('تم إضافة المنتج إلى سلة المشتريات بنجاح!');
-        }
-
-        function updateCartBadge() {
-            const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById('cartBadge').innerText = totalCount;
-        }
-
-        function changeQty(productKey, delta) {
-            const item = cart.find(i => i.key === productKey);
-            if (!item) return;
-            item.qty += delta;
-            if (item.qty <= 0) {
-                cart = cart.filter(i => i.key !== productKey);
-            }
-            updateCartBadge();
-            renderCartModal();
-        }
-
-        function renderCartModal() {
-            const container = document.getElementById('cartItemsContainer');
-            container.innerHTML = '';
-
-            if (cart.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">سلة المشتريات فارغة حالياً.</p>`;
-                document.getElementById('cartSubtotal').innerText = '0 ج.م';
-                document.getElementById('cartShippingFee').innerText = '0 ج.م';
-                document.getElementById('cartGrandTotal').innerText = '0 ج.م';
-                return;
-            }
-
-            let subtotal = 0;
-            let maxShipping = 0;
-
-            cart.forEach(item => {
-                subtotal += item.price * item.qty;
-                if (item.shippingFee > maxShipping) maxShipping = item.shippingFee;
-
-                container.innerHTML += `
-                    <div class="py-3 flex items-center justify-between gap-3">
-                        <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 shrink-0">
-                        <div class="flex-1 min-w-0">
-                            <h5 class="font-bold text-xs text-slate-800 truncate">${item.title}</h5>
-                            <p class="text-[11px] font-black text-brand-600">${item.price} ج.م</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
+                            <h4 class="font-bold text-slate-200 text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-column text-brand-400"></i> إحصائيات الطلبات حسب الحالة</h4>
+                            <div class="h-64"><canvas id="chartOrderStatus"></canvas></div>
                         </div>
-                        <div class="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
-                            <button type="button" onclick="changeQty('${item.key}', -1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-xs flex items-center justify-center">-</button>
-                            <span class="text-xs font-bold px-1">${item.qty}</span>
-                            <button type="button" onclick="changeQty('${item.key}', 1)" class="w-6 h-6 bg-white rounded-lg shadow-sm font-bold text-xs flex items-center justify-center">+</button>
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl">
+                            <h4 class="font-bold text-slate-200 text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-area text-emerald-400"></i> ملخص الإيرادات والمبيعات</h4>
+                            <div class="h-64"><canvas id="chartRevenue"></canvas></div>
                         </div>
                     </div>
-                `;
-            });
+                </section>
 
-            const defaultShipping = Number(remoteData.
+                <!-- ================= TAB 2: ORDERS MANAGEMENT ================= -->
+                <section id="tab-orders" class="tab-content space-y-6 hidden">
+                    <div class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex flex-wrap items-center gap-3 flex-1">
+                            <div class="relative min-w-[240px]">
+                                <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-slate-500 text-xs"></i>
+                                <input type="text" id="orderSearchInput" placeholder="بحث باسم العميل أو رقم الهاتف..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl pr-9 pl-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <select id="orderStatusFilter" class="bg-slate-900/80 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
+                                <option value="ALL">جميع الحالات</option>
+                                <option value="جديد">جديد</option>
+                                <option value="قيد المعالجة">قيد المعالجة</option>
+                                <option value="تم الشحن">تم الشحن</option>
+                                <option value="مكتمل">مكتمل</option>
+                                <option value="ملغي">ملغي</option>
+                            </select>
+                        </div>
+                        <button id="btnPrintSelected" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-brand-600/20">
+                            <i class="fa-solid fa-print"></i> <span>طباعة الفواتير المحددة</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right text-xs">
+                                <thead class="bg-slate-950/60 text-slate-400 font-bold border-b border-slate-700/60">
+                                    <tr>
+                                        <th class="p-4 w-10"><input type="checkbox" id="selectAllOrders" class="rounded bg-slate-900 border-slate-700 text-brand-600"></th>
+                                        <th class="p-4">رقم الطلب</th>
+                                        <th class="p-4">بيانات العميل</th>
+                                        <th class="p-4">المنتجات والتفاصيل</th>
+                                        <th class="p-4">إجمالي المبلغ</th>
+                                        <th class="p-4">حالة الطلب</th>
+                                        <th class="p-4">التاريخ</th>
+                                        <th class="p-4 text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody" class="divide-y divide-slate-700/40 text-slate-300"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ================= TAB 3: PRODUCTS & INVENTORY ================= -->
+                <section id="tab-products" class="tab-content space-y-6 hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2 border-b border-slate-700/60 pb-3">
+                                <i class="fa-solid fa-circle-plus text-brand-400"></i> <span id="productFormTitle">إضافة منتج جديد</span>
+                            </h3>
+                            <form id="productForm" class="space-y-3">
+                                <input type="hidden" id="editingProductId" value="">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">عنوان المنتج *</label>
+                                    <input type="text" id="pTitle" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">السعر (ج.م) *</label>
+                                        <input type="number" id="pPrice" required step="0.01" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">سعر الشحن (ج.م)</label>
+                                        <input type="number" id="pShippingFee" value="0" step="0.01" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">القسم *</label>
+                                    <select id="pCategory" required class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                        <!-- Dynamic Categories -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">رابط الصورة (URL) *</label>
+                                    <input type="url" id="pImage" required placeholder="https://example.com/image.jpg" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-400 mb-1">وصف المنتج</label>
+                                    <textarea id="pDescription" rows="3" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-brand-500 focus:outline-none"></textarea>
+                                </div>
+                                <div class="flex gap-2 pt-2">
+                                    <button type="submit" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-lg shadow-brand-600/20">حفظ المنتج</button>
+                                    <button type="button" id="btnResetProduct" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold px-4 py-2.5 rounded-xl text-xs transition">إلغاء</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="lg:col-span-2 bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
+                            <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2 border-b border-slate-700/60 pb-3">
+                                <i class="fa-solid fa-boxes-stacked text-brand-400"></i> قائمة المنتجات الحالية
+                            </h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-xs">
+                                    <thead class="bg-slate-950/60 text-slate-400 font-bold border-b border-slate-700/60">
+                                        <tr>
+                              
