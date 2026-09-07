@@ -58,39 +58,39 @@
                 <nav class="p-4 space-y-1.5 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">الرئيسية والإحصائيات</p>
                     
-                    <button id="nav-dashboard" data-tab="dashboard" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all">
+                    <button onclick="switchTab('dashboard', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-lg shadow-brand-600/25 transition-all">
                         <i class="fa-solid fa-chart-pie text-lg w-5"></i>
                         <span>لوحة القيادة والتحليلات</span>
                     </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إدارة المبيعات</p>
 
-                    <button id="nav-orders" data-tab="orders" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button onclick="switchTab('orders', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-boxes-packing text-lg w-5"></i>
                         <span class="flex-1 text-right">إدارة الطلبات</span>
                         <span id="badgeOrdersCount" class="bg-brand-500/20 text-brand-300 text-xs px-2 py-0.5 rounded-full border border-brand-500/30">0</span>
                     </button>
 
-                    <button id="nav-coupons" data-tab="coupons" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button onclick="switchTab('coupons', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-ticket text-lg w-5"></i>
                         <span>كوبونات الخصم</span>
                     </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">الكتالوج والمنتجات</p>
 
-                    <button id="nav-products" data-tab="products" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button onclick="switchTab('products', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-box-archive text-lg w-5"></i>
                         <span>إدارة المنتجات والمخزون</span>
                     </button>
 
-                    <button id="nav-categories" data-tab="categories" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button onclick="switchTab('categories', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-layer-group text-lg w-5"></i>
                         <span>الأقسام والتصنيفات</span>
                     </button>
 
                     <p class="px-3 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mt-5 mb-2">إعدادات النظام</p>
 
-                    <button id="nav-settings" data-tab="settings" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
+                    <button onclick="switchTab('settings', this)" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all">
                         <i class="fa-solid fa-sliders text-lg w-5"></i>
                         <span>إعدادات المتجر والشحن</span>
                     </button>
@@ -129,7 +129,7 @@
             <main class="flex-1 p-6 overflow-y-auto custom-scrollbar">
 
                 <!-- ================= TAB 1: DASHBOARD ================= -->
-                <section id="tab-dashboard" class="tab-content space-y-6">
+                <section id="sec-dashboard" class="tab-section space-y-6">
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl relative overflow-hidden">
                             <p class="text-xs font-bold text-slate-400">إجمالي المبيعات والأرباح</p>
@@ -151,7 +151,7 @@
                 </section>
 
                 <!-- ================= TAB 2: ORDERS MANAGEMENT ================= -->
-                <section id="tab-orders" class="tab-content space-y-6 hidden">
+                <section id="sec-orders" class="tab-section space-y-6 hidden">
                     <div class="bg-slate-800/60 border border-slate-700/60 p-4 rounded-2xl flex items-center justify-between gap-4">
                         <input type="text" id="orderSearchInput" placeholder="بحث باسم العميل أو رقم الهاتف..." class="w-full sm:w-80 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                     </div>
@@ -178,7 +178,7 @@
                 </section>
 
                 <!-- ================= TAB 3: COUPONS ================= -->
-                <section id="tab-coupons" class="tab-content space-y-6 hidden">
+                <section id="sec-coupons" class="tab-section space-y-6 hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
                             <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إضافة كوبون خصم جديد</h3>
@@ -216,8 +216,8 @@
                     </div>
                 </section>
 
-                <!-- ================= TAB 4: PRODUCTS (رفع مباشر من التليفون وتفعيل الزر) ================= -->
-                <section id="tab-products" class="tab-content space-y-6 hidden">
+                <!-- ================= TAB 4: PRODUCTS ================= -->
+                <section id="sec-products" class="tab-section space-y-6 hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
                             <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إضافة منتج جديد</h3>
@@ -230,7 +230,6 @@
                                     <label class="block text-xs font-bold text-slate-400 mb-1">السعر (ج.م)</label>
                                     <input type="number" id="productPrice" placeholder="0.00" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-brand-500">
                                 </div>
-                                <!-- رفع الصورة مباشرة من التليفون -->
                                 <div>
                                     <label class="block text-xs font-bold text-slate-400 mb-1">صورة المنتج (من الاستوديو)</label>
                                     <input type="file" id="productImageFile" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer bg-slate-900 border border-slate-700 rounded-xl">
@@ -263,7 +262,7 @@
                 </section>
 
                 <!-- ================= TAB 5: CATEGORIES ================= -->
-                <section id="tab-categories" class="tab-content space-y-6 hidden">
+                <section id="sec-categories" class="tab-section space-y-6 hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-slate-800/60 border border-slate-700/60 p-6 rounded-2xl space-y-4">
                             <h3 class="font-bold text-slate-100 text-sm border-b border-slate-700 pb-3">إضافة قسم جديد</h3>
@@ -280,4 +279,5 @@
                             <div class="overflow-x-auto">
                                 <table class="w-full text-right text-xs">
                                     <thead class="bg-slate-950 text-slate-400 font-bold border-b border-slate-700/60">
- 
+                                        <tr>
+                                            <th class="p-3">اسم القسم
